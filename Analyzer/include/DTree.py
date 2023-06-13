@@ -10,10 +10,12 @@ Class that contains everything to read and process a certain dataset
 '''
 class DTree:
 
-    def __init__(self, name, label, location, tag, isData = False):
-        self.name = name
+    def __init__(self, name, label, location, tag, short_name = None, isData = False):
+        self.name = name # May be a list
+        if isinstance(self.name, list): self.short_name = short_name # Always string
+        else: self.short_name = self.name
         self.label = label
-        self.location = location
+        self.location = location # May be a list
         self.isData = isData
         self.tag = tag # esto se da por linea de comandos al correr fill.py
 
@@ -37,16 +39,17 @@ class DTree:
         #self.dtfiles = []
         #self.dtrees  = []
         self.outHistFiles = []
-        for i,_file in enumerate(os.listdir(self.location)):
-            if '.root' not in _file: continue
-            #ftfile = TFile(location + _file)
-            #ttree = ftfile.Get('Events')
-            self.dtpaths.append(location + _file)
-            #self.dtfiles.append(ftfile)
-            #self.dtrees.append(ttree)
-            outHistFilename = self.histsDir+'hists_{0}_{1}.root'.format(self.name, i)
-            self.outHistFiles.append(outHistFilename) # have a register of the output files with the histograms
-        #self.closeFiles()
+        if not isinstance(self.location, list):
+            for i,_file in enumerate(os.listdir(self.location)):
+                if '.root' not in _file: continue
+                #ftfile = TFile(location + _file)
+                #ttree = ftfile.Get('Events')
+                self.dtpaths.append(location + _file)
+                #self.dtfiles.append(ftfile)
+                #self.dtrees.append(ttree)
+                outHistFilename = self.histsDir+'hists_{0}_{1}.root'.format(self.name, i)
+                self.outHistFiles.append(outHistFilename) # have a register of the output files with the histograms
+            #self.closeFiles()
 
         '''
         self.count = 0.
@@ -100,7 +103,7 @@ class DTree:
     def loop(self, cutsFilename):
         self.cutsFilename = cutsFilename
 
-        for i,path in enumerate(self.dtpaths[0:1]):
+        for i,path in enumerate(self.dtpaths[305:306]):
             print(' -> Processing file {0}'.format(path))
             command = "python3 {0} -o {1} -i {2} -c {3} --name {4}".format(self.scriptLoc,
                                                                                   self.outHistFiles[i],
@@ -111,19 +114,51 @@ class DTree:
 
 
     def merge(self, force=False):
-        self.targetFile = self.histsDir + 'merged_hists_{0}.root'.format(self.name)
-        if os.path.exists(self.targetFile): 
-            print('>> Merged file {0} already exists'.format(self.targetFile))
-            if force:
-                print('    - Removing file {0}'.format(self.targetFile)) 
-                os.system('rm {0}'.format(self.targetFile))
-            else: return
+        if not isinstance(self.name, list):
+            self.targetFile = self.histsDir + 'merged_hists_{0}.root'.format(self.name)
+            if os.path.exists(self.targetFile): 
+                print('>> Merged file {0} already exists'.format(self.targetFile))
+                if force:
+                    print('    - Removing file {0}'.format(self.targetFile)) 
+                    os.system('rm {0}'.format(self.targetFile))
+                else: return
+            print('>> Merging files with following details:')
+            print('    - location: {0}'.format(self.histsDir))
+            print('    - sample:   {0}'.format(self.name))
+            command = 'hadd {0} '.format(self.targetFile)
+            for _file in self.outHistFiles:
+                if not os.path.exists(_file): continue
+                command += '{0} '.format(_file)
+        else:
+            self.targetFile = self.histsDir + 'merged_hists_{0}.root'.format(self.short_name)
+            if os.path.exists(self.targetFile):
+                print('>> Merged file {0} already exists'.format(self.targetFile))
+                if force:
+                    print('    - Removing file {0}'.format(self.targetFile))
+                    os.system('rm {0}'.format(self.targetFile))
+                else: return
+            # Check if individual merged files exist
+            #for _name in self.name:
+            #    if not os.path.exists(self.histsDir + 'merged_hists_{0}.root'.format(_name)):
+            #        self.merge_(_name)
+            print('>> Merging files with following details:')
+            print('    - location: {0}'.format(self.histsDir))
+            print('    - sample:   {0}'.format(self.name))
+            command = 'hadd {0} '.format(self.targetFile)
+            for i,_name in enumerate(self.name):
+                command += '{0} '.format(self.histsDir+'merged_hists_{0}.root'.format(_name))
+        print(command) 
+        os.system(command)
+        print('>> Merging done')
+
+
+    def merge_(self, name):
+        targetFile = self.histsDir + 'merged_hists_{0}.root'.format(name)
         print('>> Merging files with following details:')
         print('    - location: {0}'.format(self.histsDir))
-        print('    - sample:   {0}'.format(self.name))
-        command = 'hadd {0} '.format(self.targetFile)
+        print('    - sample:   {0}'.format(name))
+        command = 'hadd {0} '.format(targetFile)
         for _file in self.outHistFiles:
             if not os.path.exists(_file): continue
             command += '{0} '.format(_file)
         os.system(command)
-        print('>> Merging done')

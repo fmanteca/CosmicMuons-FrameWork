@@ -1,10 +1,45 @@
 {
+    "Cosmics_2022B_MiniAOD_ReReco": {
+            "triggers": ["HLT_L2Mu10_NoVertex_NoBPTX3BX"],
+            "tracks":   [],
+            "muons":    []
+    },
     "Cosmics_2022C_AOD": {
             "triggers": ["HLT_L2Mu10_NoVertex_NoBPTX3BX"],
             "tracks":   [],
             "muons":    []
     },
     "Cosmics_2022C_MiniAOD": {
+            "triggers": ["HLT_L2Mu10_NoVertex_NoBPTX3BX"],
+            "tracks":   [],
+            "muons":    []
+    },
+    "Cosmics_2022D_MiniAOD_ReReco": {
+            "triggers": ["HLT_L2Mu10_NoVertex_NoBPTX3BX"],
+            "tracks":   [],
+            "muons":    []
+    },
+    "Cosmics_2022E_MiniAOD_ReReco": {
+            "triggers": ["HLT_L2Mu10_NoVertex_NoBPTX3BX"],
+            "tracks":   [],
+            "muons":    []
+    },
+    "Cosmics_2022F_AOD": {
+            "triggers": ["HLT_L2Mu10_NoVertex_NoBPTX3BX"],
+            "tracks":   [],
+            "muons":    []
+    },
+    "Cosmics_2022F_MiniAOD": {
+            "triggers": ["HLT_L2Mu10_NoVertex_NoBPTX3BX"],
+            "tracks":   [],
+            "muons":    []
+    },
+    "Cosmics_2022G_AOD": {
+            "triggers": ["HLT_L2Mu10_NoVertex_NoBPTX3BX"],
+            "tracks":   [],
+            "muons":    []
+    },
+    "Cosmics_2022G_MiniAOD": {
             "triggers": ["HLT_L2Mu10_NoVertex_NoBPTX3BX"],
             "tracks":   [],
             "muons":    []
