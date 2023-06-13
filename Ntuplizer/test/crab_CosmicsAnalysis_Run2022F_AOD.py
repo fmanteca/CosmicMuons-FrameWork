@@ -7,7 +7,7 @@ config = config()
 
 # General
 config.General.workArea = '/eos/user/r/rlopezru/crab_projects'
-config.General.requestName = 'CosmicsAnalysis_Run2022G_AOD-Ntuples'
+config.General.requestName = 'CosmicsAnalysis_Run2022F_AOD-Ntuples'
 config.General.transferOutputs = True
 config.General.transferLogs = True
 config.General.instance = 'prod'
@@ -20,13 +20,13 @@ config.JobType.allowUndistributedCMSSW = True
 config.JobType.outputFiles = ['ntuples.root']
 
 # Data
-config.Data.inputDataset = '/NoBPTX/Run2022G-PromptReco-v1/AOD'
+config.Data.inputDataset = '/NoBPTX/Run2022F-PromptReco-v1/AOD'
 config.Data.inputDBS = 'global'
 config.Data.splitting = 'FileBased'
-config.Data.unitsPerJob = 2
+config.Data.unitsPerJob = 10
 config.Data.outLFNDirBase = '/store/user/rlopezru/Samples/'
 config.Data.publication = False
-config.Data.outputDatasetTag = 'CosmicsAnalysis_Run2022G_AOD-Ntuples'
+config.Data.outputDatasetTag = 'CosmicsAnalysis_Run2022F_AOD-Ntuples'
 
 # Site
 config.Site.storageSite = 'T3_CH_CERNBOX'
