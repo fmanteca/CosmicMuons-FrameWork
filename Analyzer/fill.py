@@ -37,16 +37,8 @@ for level in runningfile.split('/')[:-1]:
 EOSPATH = '/eos/user/r/rlopezru/DisplacedMuons-Analyzer_out/Analyzer/'
 
 # Read dat file
-datFile = WORKPATH + 'dat/Samples_Spring23.json'
+datFile = WORKPATH + 'dat/Samples_Summer23_Cosmics.json'
 dat = json.load(open(datFile,'r'))
-
-# Select datasets to process
-datasets = []
-datasets.append('Cosmics_2022C')
-datasets.append('HTo2LongLived_400_150_4000')
-datasets.append('HTo2LongLived_125_20_1300')
-datasets.append('HTo2LongLived_125_20_130')
-datasets.append('HTo2LongLived_125_20_13')
 
 if __name__ == '__main__':
 
@@ -75,20 +67,10 @@ if __name__ == '__main__':
         f.write('DEBUG = {0}'.format(args.debug))
 
     # Trees
-    trees_originalFilter = []
-    #trees_originalFilter.append(DTree('Cosmics_2022C_MiniAOD',             'Cosmics Run2022C MiniAOD',            dat['Cosmics_2022C']['MiniAOD-Ntuples'],              gTag, isData = False))
-    trees_originalFilter.append(DTree('Cosmics_2022C_AOD',                 'Cosmics Run2022C AOD',                dat['Cosmics_2022C']['AOD-Ntuples'],                  gTag, isData = False))
-    #trees_originalFilter.append(DTree('HTo2LongLived_400_150_4000','H #rightarrow SS (400,150,4000)', dat['HTo2LongLived_400_150_4000']['MiniAOD-Ntuples'], gTag, isData = False))
-    #trees_originalFilter.append(DTree('HTo2LongLived_125_20_1300', 'H #rightarrow SS (125,20,1300)',  dat['HTo2LongLived_125_20_1300']['MiniAOD-Ntuples'],  gTag, isData = False))
-    #trees_originalFilter.append(DTree('HTo2LongLived_125_20_130',  'H #rightarrow SS (125,20,130)',   dat['HTo2LongLived_125_20_130']['MiniAOD-Ntuples'],   gTag, isData = False))
-    #trees_originalFilter.append(DTree('HTo2LongLived_125_20_13',   'H #rightarrow SS (125,20,13)',    dat['HTo2LongLived_125_20_13']['MiniAOD-Ntuples'],    gTag, isData = False))
-
-    trees_nsegmentsFilter = []
-    #trees_nsegmentsFilter.append(DTree('HTo2LongLived_400_150_4000_nseg2','H #rightarrow SS (400,150,4000)', dat['HTo2LongLived_400_150_4000']['MiniAOD-Ntuples_nsegments2'], gTag, isData = False))
-    #trees_nsegmentsFilter.append(DTree('HTo2LongLived_125_20_1300_nseg2', 'H #rightarrow SS (125,20,1300)',  dat['HTo2LongLived_125_20_1300']['MiniAOD-Ntuples_nsegments2'],  gTag, isData = False))
-    #trees_nsegmentsFilter.append(DTree('HTo2LongLived_125_20_130_nseg2',  'H #rightarrow SS (125,20,130)',   dat['HTo2LongLived_125_20_130']['MiniAOD-Ntuples_nsegments2'],   gTag, isData = False))
-    #trees_nsegmentsFilter.append(DTree('HTo2LongLived_125_20_13_nseg2',   'H #rightarrow SS (125,20,13)',    dat['HTo2LongLived_125_20_13']['MiniAOD-Ntuples_nsegments2'],    gTag, isData = False))
-    
+    trees = []
+    trees.append(DTree('Cosmics_2022B_MiniAOD_ReReco',    'Cosmics Run2022C MiniAOD ReReco',            dat['Cosmics_2022B']['MiniAOD_ReReco'],                  gTag, isData = True))
+    trees.append(DTree('Cosmics_2022D_MiniAOD_ReReco',    'Cosmics Run2022F MiniAOD ReReco',            dat['Cosmics_2022D']['MiniAOD_ReReco'],                  gTag, isData = True))    
+    trees.append(DTree('Cosmics_2022E_MiniAOD_ReReco',    'Cosmics Run2022G MiniAOD ReReco',            dat['Cosmics_2022E']['MiniAOD_ReReco'],                  gTag, isData = True))    
 
     if run:
         # Empty condor folder
@@ -96,13 +78,7 @@ if __name__ == '__main__':
             os.system('rm {0}/condor/{1}/*'.format(WORKPATH, args.tag))
 
         # Launch jobs
-        for dtree in trees_originalFilter:
-            if args.condor:
-                dtree.launchJobs(cuts_filename)
-            else:
-                dtree.loop(cuts_filename)
-
-        for dtree in trees_nsegmentsFilter:
+        for dtree in trees:
             if args.condor:
                 dtree.launchJobs(cuts_filename)
             else:

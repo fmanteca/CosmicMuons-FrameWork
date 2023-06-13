@@ -25,11 +25,11 @@ process.options = cms.untracked.PSet(
 from Configuration.AlCa.GlobalTag import GlobalTag
 
 # Select number of events to be processed
-nEvents = -1
+nEvents = 100
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(nEvents) )
 
 # Read events
-listOfFiles = ['']
+listOfFiles = ['/store/user/rlopezru/Samples/NoBPTX/Cosmics_2022G_PromptReco_CMSSW_13_2_0_pre1_MiniAOD/230526_123154/0000/Cosmics_2022G_PromptReco_CMSSW_13_2_0_pre1_MiniAOD_155.root']
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring( listOfFiles ),
     secondaryFileNames = cms.untracked.vstring(),
@@ -41,6 +41,6 @@ process.GlobalTag = GlobalTag(process.GlobalTag, gTag)
 
 ## Define the process to run 
 ## 
-process.load("Analysis.DisplacedMuons-Ntuplizer.Cosmics_ntuples_MiniAOD_cfi")
+process.load("DisplacedMuons-FrameWork.Ntuplizer.Cosmics_ntuples_MiniAOD_cfi")
 
 process.p = cms.EndPath(process.ntuples)

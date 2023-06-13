@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 ntuples = cms.EDAnalyzer('ntuplizer',
-    nameOfOutput = cms.string('HTo2LongLivedTo2mu2jets_Ntuples_CMSSW_12_4_11_patch3_nseg2_5.root'),
+    nameOfOutput = cms.string('HTo2LongLivedTo2mu2jets_AOD-Ntuples.root'),
     isData                        = cms.bool(True),
+    isAOD                         = cms.bool(True),
     EventInfo                     = cms.InputTag("generator"),
     RunInfo                       = cms.InputTag("generator"),
     BeamSpot                      = cms.InputTag("offlineBeamSpot"),

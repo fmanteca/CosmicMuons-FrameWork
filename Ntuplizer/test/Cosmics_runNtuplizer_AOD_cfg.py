@@ -40,6 +40,6 @@ process.GlobalTag = GlobalTag(process.GlobalTag, gTag)
 
 ## Define the process to run 
 ## 
-process.load("Analysis.DisplacedMuons-Ntuplizer.Cosmics_AOD_Ntuples_cfi")
+process.load("DisplacedMuons-FrameWork.Ntuplizer.Cosmics_ntuples_AOD_cfi")
 
 process.p = cms.EndPath(process.ntuples)

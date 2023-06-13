@@ -53,27 +53,17 @@ class PlotHandler:
 
     def count_muons(self, ev):
         # Count number of muons that are dsa and dgl
-        ndsa_ids = []
-        ndgl_ids = []
-        #nmuons = [0,0]
-        #nmuons_up   = [0,0]
-        #nmuons_down = [0,0]
+        ids = {}
+        ids['dsa'] = list(range(ev.ndsa))
+        ids['dgl'] = list(range(ev.ndgl))
+        ids['dmu_dsa'] = []
+        ids['dmu_dgl'] = []
         for n in range(ev.ndmu):
             if ev.dmu_isDSA[n]:
-                ndsa_ids.append(n)
-                #nmuons[0] += 1
-                #if ev.dmu_dsa_phi[n]<0: nmuons_down[0] += 1
-                #else: nmuons_up[0] += 1
+                ids['dmu_dsa'].append(n)
             if ev.dmu_isDGL[n]:
-                ndgl_ids.append(n)
-                #nmuons[1] += 1
-                #if ev.dmu_dgl_phi[n]<0: nmuons_down[1] += 1
-                #else: nmuons_up[1] += 1
-        #for i,col in enumerate(self.collections[2:4]):
-            #self.h_nmuons[col].Fill(nmuons[i])
-            #self.h_nmuons_up[col].Fill(nmuons_up[i])
-            #self.h_nmuons_down[col].Fill(nmuons_down[i])
-        return ndsa_ids, ndgl_ids
+                ids['dmu_dgl'].append(n)
+        return ids
 
 
     '''

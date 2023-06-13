@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 ntuples = cms.EDAnalyzer('ntuplizer',
-    nameOfOutput = cms.string('Cosmics_MiniAOD-Ntuples.root'),
+    nameOfOutput = cms.string('ntuples.root'),
     isData                        = cms.bool(True),
+    isAOD                         = cms.bool(False),
     EventInfo                     = cms.InputTag("generator"),
     RunInfo                       = cms.InputTag("generator"),
     BeamSpot                      = cms.InputTag("offlineBeamSpot"),
