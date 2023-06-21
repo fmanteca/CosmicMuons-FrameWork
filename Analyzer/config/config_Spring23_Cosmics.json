@@ -14,6 +14,11 @@
             "tracks":   [],
             "muons":    []
     },
+    "Cosmics_2022C_MiniAOD_ReReco": {
+            "triggers": ["HLT_L2Mu10_NoVertex_NoBPTX3BX"],
+            "tracks":   [],
+            "muons":    []
+    },
     "Cosmics_2022D_MiniAOD_ReReco": {
             "triggers": ["HLT_L2Mu10_NoVertex_NoBPTX3BX"],
             "tracks":   [],

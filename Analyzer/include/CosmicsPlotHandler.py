@@ -85,17 +85,17 @@ class CosmicsPlotHandler(PlotHandler):
             self.h_cosalpha[collection]        = r.TH1F("h_cosalpha_{0}".format(collection),r";cos(#alpha);N events",100,-1,1)
             self.h_dPhi[collection]            = r.TH1F("h_dPhi_{0}".format(collection),r";|#Delta#phi|;N events",100,0,3.2)
             self.h_dEta[collection]            = r.TH1F("h_dEta_{0}".format(collection),r";#Delta#eta;N events",100,-2.4,2.4)
-            self.h_eff_pt[collection]          = r.TEfficiency("h_eff_pt_{0}".format(collection), "Efficiency cosmic muons;p_{T} (GeV);Efficiency",    90,0,90)
-            self.h_eff_eta[collection]         = r.TEfficiency("h_eff_eta_{0}".format(collection),"Efficiency cosmic muons;#eta;Efficiency",100,-1.2,1.2)
-            self.h_eff_dxy[collection]         = r.TEfficiency("h_eff_dxy_{0}".format(collection),"Efficiency cosmic muons;|d_{0}| (cm);Efficiency", 9, 
-                                                               np.array([0., 2., 5., 10., 20., 30., 40., 50., 60., 70.]))
-            self.h_eff_dxy_cutdz[collection]   = r.TEfficiency("h_eff_dxy_cutdz_{0}".format(collection),"Efficiency cosmic muons;|d_{0}| (cm);Efficiency", 9, 
-                                                               np.array([0., 2., 5., 10., 20., 30., 40., 50., 60., 70.]))
-            self.h_eff_dz[collection]          = r.TEfficiency("h_eff_dz_{0}".format(collection), "Efficiency cosmic muons;|d_{z}| (cm);Efficiency", 6, 
+            self.h_eff_pt[collection]          = r.TEfficiency("h_eff_pt_{0}".format(collection), "Efficiency cosmic muons;tag p_{T} (GeV);Efficiency",    50,0,90)
+            self.h_eff_eta[collection]         = r.TEfficiency("h_eff_eta_{0}".format(collection),"Efficiency cosmic muons;tag #eta;Efficiency",30,-1.2,1.2)
+            self.h_eff_dxy[collection]         = r.TEfficiency("h_eff_dxy_{0}".format(collection),"Efficiency cosmic muons;tag |d_{0}| (cm);Efficiency", 50, 0, 200)
+                                                               #np.array([0., 2., 5., 10., 20., 30., 40., 50., 60., 70.]))
+            self.h_eff_dxy_cutdz[collection]   = r.TEfficiency("h_eff_dxy_cutdz_{0}".format(collection),"Efficiency cosmic muons;tag |d_{0}| (cm);Efficiency", 50, 0, 200) 
+                                                               #np.array([0., 2., 5., 10., 20., 30., 40., 50., 60., 70.]))
+            self.h_eff_dz[collection]          = r.TEfficiency("h_eff_dz_{0}".format(collection), "Efficiency cosmic muons;tag |d_{z}| (cm);Efficiency", 6, 
                                                                np.array([0., 8., 20., 40., 60., 90., 140.]))
-            self.h_eff_dz_cutdxy[collection]   = r.TEfficiency("h_eff_dz_cutdxy_{0}".format(collection),"Efficiency cosmic muons;|d_{z}| (cm);Efficiency", 6, 
+            self.h_eff_dz_cutdxy[collection]   = r.TEfficiency("h_eff_dz_cutdxy_{0}".format(collection),"Efficiency cosmic muons;tag |d_{z}| (cm);Efficiency", 6, 
                                                                np.array([0., 8., 20., 40., 60., 90., 140.]))
-            self.h_eff_2D[collection]          = r.TEfficiency("h_eff_2D_{0}".format(collection), "Efficiency cosmic muons;|d_{0}| (cm);|d_{z}| (cm);Efficiency",6,
+            self.h_eff_2D[collection]          = r.TEfficiency("h_eff_2D_{0}".format(collection), "Efficiency cosmic muons;tag |d_{0}| (cm);tag |d_{z}| (cm);Efficiency",6,
                                                                np.array([0., 2., 5., 10., 30., 50., 70.]), 6,np.array([0., 8., 20., 40., 60., 90., 140.]))
             self.h_dxy_dz_2D[collection]       = r.TH2F("h_dxy_dz_2D_{0}".format(collection), "Displacement cosmic muons;|d_{0}| (cm);|d_{z}| (cm);N events",100,0,500,100,0,700)
             self.h_pt_probe[collection]              = r.TH1F("h_pt_probe{0}".format(collection),r";probe p_{T} (GeV);N events",100,0,200)

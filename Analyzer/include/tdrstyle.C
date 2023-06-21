@@ -11,8 +11,8 @@ void setTDRStyle(bool fatline=true) {
   tdrStyle->SetCanvasBorderMode(0);
   tdrStyle->SetCanvasBorderSize(1);
   tdrStyle->SetCanvasColor(kWhite);
-  tdrStyle->SetCanvasDefH(1200); //Height of canvas
-  tdrStyle->SetCanvasDefW(1200); //Width of canvas
+  tdrStyle->SetCanvasDefH(600); //Height of canvas
+  tdrStyle->SetCanvasDefW(600); //Width of canvas
   tdrStyle->SetCanvasDefX(0);   //POsition on screen
   tdrStyle->SetCanvasDefY(0);
 
@@ -73,8 +73,16 @@ void setTDRStyle(bool fatline=true) {
   tdrStyle->SetPadBottomMargin(0.13);
   tdrStyle->SetPadLeftMargin(0.13);
   //tdrStyle->SetPadRightMargin(0.05);
-  tdrStyle->SetPadRightMargin(0.11);
+  tdrStyle->SetPadRightMargin(0.10);
 
+  // For the Global title:
+  tdrStyle->SetOptTitle(0);
+  tdrStyle->SetTitleFont(42);
+  tdrStyle->SetTitleColor(1);
+  tdrStyle->SetTitleTextColor(1);
+  tdrStyle->SetTitleFillColor(10);
+  tdrStyle->SetTitleFontSize(0.05);
+  
   // For the axis titles:
   tdrStyle->SetTitleColor(1, "XYZ");
   tdrStyle->SetTitleFont(42, "XYZ");
@@ -85,7 +93,7 @@ void setTDRStyle(bool fatline=true) {
   // For the axis labels:
   tdrStyle->SetLabelColor(1, "XYZ");
   tdrStyle->SetLabelFont(42, "XYZ");
-  tdrStyle->SetLabelOffset(0.01, "XYZ");
+  tdrStyle->SetLabelOffset(0.007, "XYZ");
   tdrStyle->SetLabelSize(0.04, "XYZ");
 
   // For the axis:
@@ -101,7 +109,7 @@ void setTDRStyle(bool fatline=true) {
   tdrStyle->SetOptLogy(0);
   tdrStyle->SetOptLogz(0);
 
-  tdrStyle->SetPaintTextFormat("3.0f");
+  //tdrStyle->SetPaintTextFormat("3.0f");
 
   static Int_t colors[255];
   Double_t stops[5] = { 0.00, 0.34, 0.61, 0.84, 1.00 };
@@ -116,6 +124,3 @@ void setTDRStyle(bool fatline=true) {
 
   tdrStyle->cd();
 }
-
-  
-

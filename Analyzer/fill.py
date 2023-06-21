@@ -68,9 +68,12 @@ if __name__ == '__main__':
 
     # Trees
     trees = []
-    trees.append(DTree('Cosmics_2022B_MiniAOD_ReReco',    'Cosmics Run2022C MiniAOD ReReco',            dat['Cosmics_2022B']['MiniAOD_ReReco'],                  gTag, isData = True))
-    trees.append(DTree('Cosmics_2022D_MiniAOD_ReReco',    'Cosmics Run2022F MiniAOD ReReco',            dat['Cosmics_2022D']['MiniAOD_ReReco'],                  gTag, isData = True))    
-    trees.append(DTree('Cosmics_2022E_MiniAOD_ReReco',    'Cosmics Run2022G MiniAOD ReReco',            dat['Cosmics_2022E']['MiniAOD_ReReco'],                  gTag, isData = True))    
+    trees.append(DTree('Cosmics_2022B_MiniAOD_ReReco',    'Cosmics Run2022B MiniAOD',            dat['Cosmics_2022B']['MiniAOD_ReReco'],                  gTag, isData = True))
+    trees.append(DTree('Cosmics_2022C_MiniAOD_ReReco',    'Cosmics Run2022C MiniAOD',            dat['Cosmics_2022C']['MiniAOD_ReReco'],                  gTag, isData = True))
+    trees.append(DTree('Cosmics_2022D_MiniAOD_ReReco',    'Cosmics Run2022D MiniAOD',            dat['Cosmics_2022D']['MiniAOD_ReReco'],                  gTag, isData = True))    
+    trees.append(DTree('Cosmics_2022E_MiniAOD_ReReco',    'Cosmics Run2022E MiniAOD',            dat['Cosmics_2022E']['MiniAOD_ReReco'],                  gTag, isData = True))    
+    trees.append(DTree('Cosmics_2022F_MiniAOD',    'Cosmics Run2022F MiniAOD',            dat['Cosmics_2022F']['MiniAOD-Ntuples'],                  gTag, isData = True))    
+    trees.append(DTree('Cosmics_2022G_MiniAOD',    'Cosmics Run2022G MiniAOD',            dat['Cosmics_2022G']['MiniAOD-Ntuples'],                  gTag, isData = True))    
 
     if run:
         # Empty condor folder
