@@ -190,7 +190,7 @@ def makeVarPlot(hfile, dtree, hname, tag, collection, names, color=r.kRed, texts
     c.SaveAs(EOSPATH+'Plots/{0}/{1}/{2}.pdf'.format(tag,dtree.short_name,c.GetName()))
     c.SaveAs(EOSPATH+'Plots/{0}/{1}/{2}.C'.format(tag,dtree.short_name,c.GetName()))
 
-def make2DEfficiencyPlot(hfile, dtree, hname, tag, collection, zlog=False):
+def make2DEfficiencyPlot(hfile, dtree, hname, tag, collection, text, zlog=False):
 
     h = hfile.Get(hname+'_'+collection)
 
@@ -203,7 +203,8 @@ def make2DEfficiencyPlot(hfile, dtree, hname, tag, collection, zlog=False):
  
     h.SetStatisticOption(r.TEfficiency.kFNormal)
     h.Draw("COLZ,TEXT")
-    #h.GetPaintedHistogram().GetZaxis().SetRangeUser(0,1)
+    c.Update()
+    h.GetPaintedHistogram().SetMaximum(1)
 
     latex = r.TLatex()
     latex.SetNDC();
@@ -213,6 +214,8 @@ def make2DEfficiencyPlot(hfile, dtree, hname, tag, collection, zlog=False):
     latex.SetTextAlign(11);
     latex.SetTextSize(0.04);
     latex.DrawLatex(0.16, 0.93, "#bf{CMS} #it{Internal}")
+    latex.SetTextAlign(31);
+    latex.DrawLatex(0.82, 0.93, text)
 
     r.gStyle.SetPaintTextFormat("4.2f")
 
@@ -299,6 +302,7 @@ if __name__ == '__main__':
                 makeVarPlot(hfile, dtree, h, args.tag, collection, names=['reco::Track({0})'.format(collection),'pat::Muon({0})'.format(collection)], color=colors_1[n], texts=texts, ylog=True)
             for h in hists_eff:
                 makeEfficiencyPlot(hfile, dtree, h, args.tag, collection, names=['reco::Track({0})'.format(collection),'pat::Muon({0})'.format(collection)], color=colors_1[n], texts=texts)
-        make2DEfficiencyPlot(hfile, dtree, "h_eff_2D", args.tag, collection, zlog=False)
-        make2DEfficiencyPlot(hfile, dtree, "h_eff_2D_dmu", args.tag, collection, zlog=False)
+        
+        make2DEfficiencyPlot(hfile, dtree, "h_eff_2D", args.tag, 'dgl', text=dtree.label, zlog=False)
+        make2DEfficiencyPlot(hfile, dtree, "h_eff_2D_dmu", args.tag, 'dgl', text=dtree.label, zlog=False)
         print('>> DONE') 

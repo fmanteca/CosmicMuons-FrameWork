@@ -68,5 +68,10 @@
             "triggers": [],
             "tracks": ["pt > 3.5","ID"],
             "muons":  ["pt > 3.5","ID"]
+    },
+    "HTo2LongLived_1000_350_3500": {
+            "triggers": [],
+            "tracks": ["pt > 3.5","ID"],
+            "muons":  ["pt > 3.5","ID"]
     }
 }

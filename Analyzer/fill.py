@@ -36,10 +36,6 @@ for level in runningfile.split('/')[:-1]:
     WORKPATH += '/'
 EOSPATH = '/eos/user/r/rlopezru/DisplacedMuons-Analyzer_out/Analyzer/'
 
-# Read dat file
-datFile = WORKPATH + 'dat/Samples_Summer23_Cosmics.json'
-dat = json.load(open(datFile,'r'))
-
 if __name__ == '__main__':
 
     r.gROOT.ProcessLine('.L ./include/tdrstyle.C')
@@ -50,6 +46,7 @@ if __name__ == '__main__':
     r.gStyle.SetPaintTextFormat("3.2f")
     parser = ArgumentParser()
     parser.add_argument('-c', '--cuts', dest='cuts_filename')
+    parser.add_argument('-D', '--dat', dest='dat')
     parser.add_argument('-t', '--tag', dest='tag')
     parser.add_argument('-d', '--debug', dest='debug', action='store_true')
     parser.add_argument('-q', '--queue', dest='condor', action= 'store_true')
@@ -58,6 +55,10 @@ if __name__ == '__main__':
 
     printConfig(args)
    
+    # Read dat file
+    datFile = WORKPATH + args.dat
+    dat = json.load(open(datFile,'r'))
+
     run = args.run
     gTag = args.tag
     cuts_filename = WORKPATH + args.cuts_filename
@@ -68,12 +69,13 @@ if __name__ == '__main__':
 
     # Trees
     trees = []
-    trees.append(DTree('Cosmics_2022B_MiniAOD_ReReco',    'Cosmics Run2022B MiniAOD',            dat['Cosmics_2022B']['MiniAOD_ReReco'],                  gTag, isData = True))
-    trees.append(DTree('Cosmics_2022C_MiniAOD_ReReco',    'Cosmics Run2022C MiniAOD',            dat['Cosmics_2022C']['MiniAOD_ReReco'],                  gTag, isData = True))
-    trees.append(DTree('Cosmics_2022D_MiniAOD_ReReco',    'Cosmics Run2022D MiniAOD',            dat['Cosmics_2022D']['MiniAOD_ReReco'],                  gTag, isData = True))    
-    trees.append(DTree('Cosmics_2022E_MiniAOD_ReReco',    'Cosmics Run2022E MiniAOD',            dat['Cosmics_2022E']['MiniAOD_ReReco'],                  gTag, isData = True))    
-    trees.append(DTree('Cosmics_2022F_MiniAOD',    'Cosmics Run2022F MiniAOD',            dat['Cosmics_2022F']['MiniAOD-Ntuples'],                  gTag, isData = True))    
-    trees.append(DTree('Cosmics_2022G_MiniAOD',    'Cosmics Run2022G MiniAOD',            dat['Cosmics_2022G']['MiniAOD-Ntuples'],                  gTag, isData = True))    
+    #trees.append(DTree('Cosmics_2022B_MiniAOD_ReReco',    'Cosmics Run2022B MiniAOD',            dat['Cosmics_2022B']['MiniAOD_ReReco'],                  gTag, isData = True))
+    #trees.append(DTree('Cosmics_2022C_MiniAOD_ReReco',    'Cosmics Run2022C MiniAOD',            dat['Cosmics_2022C']['MiniAOD_ReReco'],                  gTag, isData = True))
+    #trees.append(DTree('Cosmics_2022D_MiniAOD_ReReco',    'Cosmics Run2022D MiniAOD',            dat['Cosmics_2022D']['MiniAOD_ReReco'],                  gTag, isData = True))    
+    #trees.append(DTree('Cosmics_2022E_MiniAOD_ReReco',    'Cosmics Run2022E MiniAOD',            dat['Cosmics_2022E']['MiniAOD_ReReco'],                  gTag, isData = True))    
+    #trees.append(DTree('Cosmics_2022F_MiniAOD',    'Cosmics Run2022F MiniAOD',            dat['Cosmics_2022F']['MiniAOD-Ntuples'],                  gTag, isData = True))    
+    #trees.append(DTree('Cosmics_2022G_MiniAOD',    'Cosmics Run2022G MiniAOD',            dat['Cosmics_2022G']['MiniAOD-Ntuples'],                  gTag, isData = True))    
+    trees.append(DTree('HTo2LongLived_1000_350_3500',  'HTo2LLTo2mu2jets (1000,350,3500) ReMiniAOD',  dat['HTo2LongLived_1000_350_3500']['ReMiniAOD-Ntuples'],       gTag, isData = False))
 
     if run:
         # Empty condor folder
