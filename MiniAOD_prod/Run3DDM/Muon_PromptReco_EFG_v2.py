@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: HTo2LongLivedTo2mu2jets_TuneCP5_13p6TeV_pythia8 --mc --eventcontent MINIAODSIM --datatier MINIAODSIM --conditions 124X_mcRun3_2022_realistic_postEE_v1 --step PAT --nThreads 2 --geometry DB:Extended --era Run3 --filein /store/mc/Run3Summer22EEDRPremix/HTo2LongLivedTo2mu2jets_MH-1000_MFF-150_CTau-1000mm_TuneCP5_13p6TeV_pythia8/AODSIM/124X_mcRun3_2022_realistic_postEE_v1-v2/2550000/053b4487-c292-4717-a8a1-e7cff0c60988.root --fileout file:step0.root --no_exec
+# with command line options: Muon_PromptReco_EFG --data --eventcontent MINIAOD --datatier MINIAOD --conditions 124X_dataRun3_Prompt_v10 --step PAT --nThreads 2 --era Run3 --filein file:raw.root --fileout file:step0.root --no_exec --runUnscheduled --customise Configuration/DataProcessing/Utils.addMonitoring --scenario pp --python_filename Muon_PromptReco_EFG_v2.py
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Run3_cff import Run3
@@ -14,22 +14,21 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
-process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('PhysicsTools.PatAlgos.slimming.metFilterPaths_cff')
-process.load('Configuration.StandardSequences.PATMC_cff')
+process.load('Configuration.StandardSequences.PAT_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10),
+    input = cms.untracked.int32(1000),
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/mc/Run3Summer22EEDRPremix/HTo2LongLivedTo2mu2jets_MH-1000_MFF-150_CTau-1000mm_TuneCP5_13p6TeV_pythia8/AODSIM/124X_mcRun3_2022_realistic_postEE_v1-v2/2550000/053b4487-c292-4717-a8a1-e7cff0c60988.root'),
+    fileNames = cms.untracked.vstring('/store/data/Run2022G/Muon/AOD/PromptReco-v1/000/362/362/00000/d77b5a7c-7b86-49bf-8878-df83b1305661.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
 
@@ -67,25 +66,52 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    annotation = cms.untracked.string('HTo2LongLivedTo2mu2jets_TuneCP5_13p6TeV_pythia8 nevts:1'),
+    annotation = cms.untracked.string('Muon_PromptReco_EFG nevts:1'),
     name = cms.untracked.string('Applications'),
     version = cms.untracked.string('$Revision: 1.19 $')
 )
 
+# HLT Filter
+process.hltFilter = cms.EDFilter("HLTHighLevel",
+                                 TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
+                                 HLTPaths = cms.vstring("HLT_DoubleL*Mu*NoVtx*"),
+                                 andOr = cms.bool(True), # to deal with multiple triggers: True (OR) accept if ANY is true, False (AND) accept if ALL are true
+                                 throw = cms.bool(True)  # throw exception on unknown path names
+                                 )
+
 # Output definition
 
-process.MINIAODSIMoutput = cms.OutputModule("PoolOutputModule",
+process.MINIAODoutput = cms.OutputModule("PoolOutputModule",
     compressionAlgorithm = cms.untracked.string('LZMA'),
     compressionLevel = cms.untracked.int32(4),
     dataset = cms.untracked.PSet(
-        dataTier = cms.untracked.string('MINIAODSIM'),
+        dataTier = cms.untracked.string('MINIAOD'),
         filterName = cms.untracked.string('')
     ),
     dropMetaData = cms.untracked.string('ALL'),
     eventAutoFlushCompressedSize = cms.untracked.int32(-900),
     fastCloning = cms.untracked.bool(False),
-    fileName = cms.untracked.string('file:step0.root'),
-    outputCommands = process.MINIAODSIMEventContent.outputCommands,
+    fileName = cms.untracked.string('file:Muon_Run2022G_PromptReco-v1_d77b5a7c-7b86-49bf-8878-df83b1305661.root'),
+    outputCommands = cms.untracked.vstring(
+        'drop *',
+        'keep *_patTrigger_l1max_*',
+        'keep *_gtStage2Digis_*_RECO',
+        'keep *_TriggerResults_*_*',
+        'keep *_slimmedPatTrigger_*_*',
+        'keep *_slimmedMETs_*_*',
+        'keep *_offlineBeamSpot_*_*',
+        'keep *_offlineSlimmedPrimaryVerticesWithBS_*_*',
+        'keep *_trackFromPackedCandidate_*_*',
+        'keep *_slimmedMuons_*_*',
+        'keep *_prunedGenParticles_*_*',
+        'keep *_generator_*_SIM',
+        'keep *_slimmedAddPileupInfo_*_*',
+        'keep *_slimmedDisplacedMuons_*_*',
+        'keep *_packedPFCandidates_*_*',
+        'keep *_lostTracks_*_*',
+        'keep *_slimmedDisplacedMuonTrackExtras_*_*',
+        'keep *_slimmedMuonTrackExtras_*_*'
+        ),
     overrideBranchesSplitLevel = cms.untracked.VPSet(
         cms.untracked.PSet(
             branch = cms.untracked.string('patPackedCandidates_packedPFCandidates__*'),
@@ -148,7 +174,7 @@ process.MINIAODSIMoutput = cms.OutputModule("PoolOutputModule",
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '124X_mcRun3_2022_realistic_postEE_v1', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '124X_dataRun3_Prompt_v10', '')
 
 # Path and EndPath definitions
 process.Flag_BadChargedCandidateFilter = cms.Path(process.BadChargedCandidateFilter)
@@ -164,6 +190,7 @@ process.Flag_EcalDeadCellTriggerPrimitiveFilter = cms.Path(process.EcalDeadCellT
 process.Flag_HBHENoiseFilter = cms.Path(process.HBHENoiseFilterResultProducer+process.HBHENoiseFilter)
 process.Flag_HBHENoiseIsoFilter = cms.Path(process.HBHENoiseFilterResultProducer+process.HBHENoiseIsoFilter)
 process.Flag_HcalStripHaloFilter = cms.Path(process.HcalStripHaloFilter)
+process.Flag_hltFilter = cms.Path(process.hltFilter)
 process.Flag_METFilters = cms.Path(process.metFilters)
 process.Flag_chargedHadronTrackResolutionFilter = cms.Path(process.chargedHadronTrackResolutionFilter)
 process.Flag_ecalBadCalibFilter = cms.Path(process.ecalBadCalibFilter)
@@ -181,10 +208,10 @@ process.Flag_trkPOG_logErrorTooManyClusters = cms.Path(~process.logErrorTooManyC
 process.Flag_trkPOG_manystripclus53X = cms.Path(~process.manystripclus53X)
 process.Flag_trkPOG_toomanystripclus53X = cms.Path(~process.toomanystripclus53X)
 process.endjob_step = cms.EndPath(process.endOfProcess)
-process.MINIAODSIMoutput_step = cms.EndPath(process.MINIAODSIMoutput)
+process.MINIAODoutput_step = cms.EndPath(process.MINIAODoutput)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.Flag_HBHENoiseFilter,process.Flag_HBHENoiseIsoFilter,process.Flag_CSCTightHaloFilter,process.Flag_CSCTightHaloTrkMuUnvetoFilter,process.Flag_CSCTightHalo2015Filter,process.Flag_globalTightHalo2016Filter,process.Flag_globalSuperTightHalo2016Filter,process.Flag_HcalStripHaloFilter,process.Flag_hcalLaserEventFilter,process.Flag_EcalDeadCellTriggerPrimitiveFilter,process.Flag_EcalDeadCellBoundaryEnergyFilter,process.Flag_ecalBadCalibFilter,process.Flag_goodVertices,process.Flag_eeBadScFilter,process.Flag_ecalLaserCorrFilter,process.Flag_trkPOGFilters,process.Flag_chargedHadronTrackResolutionFilter,process.Flag_muonBadTrackFilter,process.Flag_BadChargedCandidateFilter,process.Flag_BadPFMuonFilter,process.Flag_BadPFMuonDzFilter,process.Flag_hfNoisyHitsFilter,process.Flag_BadChargedCandidateSummer16Filter,process.Flag_BadPFMuonSummer16Filter,process.Flag_trkPOG_manystripclus53X,process.Flag_trkPOG_toomanystripclus53X,process.Flag_trkPOG_logErrorTooManyClusters,process.Flag_METFilters,process.endjob_step,process.MINIAODSIMoutput_step)
+process.schedule = cms.Schedule(process.Flag_HBHENoiseFilter,process.Flag_HBHENoiseIsoFilter,process.Flag_CSCTightHaloFilter,process.Flag_CSCTightHaloTrkMuUnvetoFilter,process.Flag_CSCTightHalo2015Filter,process.Flag_globalTightHalo2016Filter,process.Flag_globalSuperTightHalo2016Filter,process.Flag_HcalStripHaloFilter,process.Flag_hcalLaserEventFilter,process.Flag_EcalDeadCellTriggerPrimitiveFilter,process.Flag_EcalDeadCellBoundaryEnergyFilter,process.Flag_ecalBadCalibFilter,process.Flag_goodVertices,process.Flag_eeBadScFilter,process.Flag_ecalLaserCorrFilter,process.Flag_trkPOGFilters,process.Flag_chargedHadronTrackResolutionFilter,process.Flag_muonBadTrackFilter,process.Flag_BadChargedCandidateFilter,process.Flag_BadPFMuonFilter,process.Flag_BadPFMuonDzFilter,process.Flag_hfNoisyHitsFilter,process.Flag_BadChargedCandidateSummer16Filter,process.Flag_BadPFMuonSummer16Filter,process.Flag_trkPOG_manystripclus53X,process.Flag_trkPOG_toomanystripclus53X,process.Flag_trkPOG_logErrorTooManyClusters,process.Flag_METFilters,process.Flag_hltFilter,process.endjob_step,process.MINIAODoutput_step)
 process.schedule.associate(process.patTask)
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
@@ -193,14 +220,23 @@ associatePatAlgosToolsTask(process)
 process.options.numberOfThreads = 2
 process.options.numberOfStreams = 0
 
+# customisation of the process.
+
+# Automatic addition of the customisation function from Configuration.DataProcessing.Utils
+from Configuration.DataProcessing.Utils import addMonitoring 
+
+#call to customisation function addMonitoring imported from Configuration.DataProcessing.Utils
+process = addMonitoring(process)
+
+# End of customisation functions
 
 # customisation of the process.
 
 # Automatic addition of the customisation function from PhysicsTools.PatAlgos.slimming.miniAOD_tools
-from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeAllMC 
+from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeAllData 
 
-#call to customisation function miniAOD_customizeAllMC imported from PhysicsTools.PatAlgos.slimming.miniAOD_tools
-process = miniAOD_customizeAllMC(process)
+#call to customisation function miniAOD_customizeAllData imported from PhysicsTools.PatAlgos.slimming.miniAOD_tools
+process = miniAOD_customizeAllData(process)
 
 # End of customisation functions
 

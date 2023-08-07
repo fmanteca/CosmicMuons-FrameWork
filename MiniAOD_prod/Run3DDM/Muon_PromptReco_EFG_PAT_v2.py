@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: Muon_PromptReco_EFG --data --eventcontent MINIAOD --datatier MINIAOD --conditions 124X_dataRun3_Prompt_v10 --step PAT --nThreads 2 --era Run3 --filein file:raw.root --fileout file:step0.root --no_exec --runUnscheduled --customise Configuration/DataProcessing/Utils.addMonitoring --scenario pp
+# with command line options: Muon_PromptReco_EFG --data --eventcontent MINIAOD --datatier MINIAOD --conditions 124X_dataRun3_Prompt_v10 --step PAT --nThreads 2 --geometry DB:Extended --era Run3 --filein file:raw.root --fileout file:step0.root --no_exec
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Run3_cff import Run3
@@ -71,6 +71,13 @@ process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.19 $')
 )
 
+process.hltFilter = cms.EDFilter("HLTHighLevel",
+                                 TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
+                                 HLTPaths = cms.vstring("HLT_DoubleL*Mu*NoVtx*"),
+                                 andOr = cms.bool(True), # to deal with multiple triggers: True (OR) accept if ANY is true, False (AND) accept if ALL are true
+                                 throw = cms.bool(True)  # throw exception on unknown path names
+                                 )
+
 # Output definition
 
 process.MINIAODoutput = cms.OutputModule("PoolOutputModule",
@@ -83,8 +90,27 @@ process.MINIAODoutput = cms.OutputModule("PoolOutputModule",
     dropMetaData = cms.untracked.string('ALL'),
     eventAutoFlushCompressedSize = cms.untracked.int32(-900),
     fastCloning = cms.untracked.bool(False),
-    fileName = cms.untracked.string('file:MuonRun2022F_MiniAOD.root'),
-    outputCommands = process.MINIAODEventContent.outputCommands,
+    fileName = cms.untracked.string('file:MuonRun2022F_MiniAOD_filter.root'),
+    outputCommands = cms.untracked.vstring(
+        'drop *',
+        'keep *_patTrigger_l1max_*',
+        'keep *_gtStage2Digis_*_RECO',
+        'keep *_TriggerResults_*_*',
+        'keep *_slimmedPatTrigger_*_*',
+        'keep *_slimmedMETs_*_*',
+        'keep *_offlineBeamSpot_*_*',
+        'keep *_offlineSlimmedPrimaryVerticesWithBS_*_*',
+        'keep *_trackFromPackedCandidate_*_*',
+        'keep *_slimmedMuons_*_*',
+        'keep *_prunedGenParticles_*_*',
+        'keep *_generator_*_SIM',
+        'keep *_slimmedAddPileupInfo_*_*',
+        'keep *_slimmedDisplacedMuons_*_*',
+        'keep *_packedPFCandidates_*_*',
+        'keep *_lostTracks_*_*',
+        'keep *_slimmedDisplacedMuonTrackExtras_*_*',
+        'keep *_slimmedMuonTrackExtras_*_*'
+        ),
     overrideBranchesSplitLevel = cms.untracked.VPSet(
         cms.untracked.PSet(
             branch = cms.untracked.string('patPackedCandidates_packedPFCandidates__*'),
@@ -163,6 +189,7 @@ process.Flag_EcalDeadCellTriggerPrimitiveFilter = cms.Path(process.EcalDeadCellT
 process.Flag_HBHENoiseFilter = cms.Path(process.HBHENoiseFilterResultProducer+process.HBHENoiseFilter)
 process.Flag_HBHENoiseIsoFilter = cms.Path(process.HBHENoiseFilterResultProducer+process.HBHENoiseIsoFilter)
 process.Flag_HcalStripHaloFilter = cms.Path(process.HcalStripHaloFilter)
+process.Flag_hltFilter = cms.Path(process.hltFilter)
 process.Flag_METFilters = cms.Path(process.metFilters)
 process.Flag_chargedHadronTrackResolutionFilter = cms.Path(process.chargedHadronTrackResolutionFilter)
 process.Flag_ecalBadCalibFilter = cms.Path(process.ecalBadCalibFilter)
@@ -183,7 +210,7 @@ process.endjob_step = cms.EndPath(process.endOfProcess)
 process.MINIAODoutput_step = cms.EndPath(process.MINIAODoutput)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.Flag_HBHENoiseFilter,process.Flag_HBHENoiseIsoFilter,process.Flag_CSCTightHaloFilter,process.Flag_CSCTightHaloTrkMuUnvetoFilter,process.Flag_CSCTightHalo2015Filter,process.Flag_globalTightHalo2016Filter,process.Flag_globalSuperTightHalo2016Filter,process.Flag_HcalStripHaloFilter,process.Flag_hcalLaserEventFilter,process.Flag_EcalDeadCellTriggerPrimitiveFilter,process.Flag_EcalDeadCellBoundaryEnergyFilter,process.Flag_ecalBadCalibFilter,process.Flag_goodVertices,process.Flag_eeBadScFilter,process.Flag_ecalLaserCorrFilter,process.Flag_trkPOGFilters,process.Flag_chargedHadronTrackResolutionFilter,process.Flag_muonBadTrackFilter,process.Flag_BadChargedCandidateFilter,process.Flag_BadPFMuonFilter,process.Flag_BadPFMuonDzFilter,process.Flag_hfNoisyHitsFilter,process.Flag_BadChargedCandidateSummer16Filter,process.Flag_BadPFMuonSummer16Filter,process.Flag_trkPOG_manystripclus53X,process.Flag_trkPOG_toomanystripclus53X,process.Flag_trkPOG_logErrorTooManyClusters,process.Flag_METFilters,process.endjob_step,process.MINIAODoutput_step)
+process.schedule = cms.Schedule(process.Flag_HBHENoiseFilter,process.Flag_HBHENoiseIsoFilter,process.Flag_CSCTightHaloFilter,process.Flag_CSCTightHaloTrkMuUnvetoFilter,process.Flag_CSCTightHalo2015Filter,process.Flag_globalTightHalo2016Filter,process.Flag_globalSuperTightHalo2016Filter,process.Flag_HcalStripHaloFilter,process.Flag_hcalLaserEventFilter,process.Flag_EcalDeadCellTriggerPrimitiveFilter,process.Flag_EcalDeadCellBoundaryEnergyFilter,process.Flag_ecalBadCalibFilter,process.Flag_goodVertices,process.Flag_eeBadScFilter,process.Flag_ecalLaserCorrFilter,process.Flag_trkPOGFilters,process.Flag_chargedHadronTrackResolutionFilter,process.Flag_muonBadTrackFilter,process.Flag_BadChargedCandidateFilter,process.Flag_BadPFMuonFilter,process.Flag_BadPFMuonDzFilter,process.Flag_hfNoisyHitsFilter,process.Flag_BadChargedCandidateSummer16Filter,process.Flag_BadPFMuonSummer16Filter,process.Flag_trkPOG_manystripclus53X,process.Flag_trkPOG_toomanystripclus53X,process.Flag_trkPOG_logErrorTooManyClusters,process.Flag_METFilters,process.Flag_hltFilter,process.endjob_step,process.MINIAODoutput_step)
 process.schedule.associate(process.patTask)
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)

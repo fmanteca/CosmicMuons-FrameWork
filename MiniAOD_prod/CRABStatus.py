@@ -41,7 +41,10 @@ class CRABSummary:
             if count == 0: continue
             self.status[key] += count
             print(f"{key:12}: {count}")
-        print(os.popen(f"grep 'Output dataset:' {self.tempFile}").read())
+        dataset = os.popen(f"grep 'Output dataset:' {self.tempFile}").read().split('	')[-1][:-1]
+        if 'USER' in dataset: 
+            print(f'Dataset: {dataset}')
+            self.datasets.append(dataset)
 
     def print(self):
         print(40*'-')
