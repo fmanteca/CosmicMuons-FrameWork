@@ -21,21 +21,22 @@ process.options = cms.untracked.PSet(
 from Configuration.AlCa.GlobalTag import GlobalTag
 
 # Select number of events to be processed
-nEvents = -1
+nEvents = 100
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(nEvents) )
 
 # Read events
-#inputdir = '/eos/user/r/rlopezru/Samples/HTo2LongLivedTo2mu2jets_MiniAOD/HTo2LongLivedTo2mu2jets_MH-400_MFF-150_CTau-4000mm_TuneCP5_13p6TeV_pythia8/HTo2LongLivedTo2mu2jets_MH-400_MFF-150_CTau-4000mm_TuneCP5_13p6TeV_pythia8/HTo2LongLivedTo2mu2jets_MH-400_MFF-150_CTau-4000mm_MiniAOD_CMSSW_13_1_0_pre2_nsegments2_review/230508_074147/0000/'
-#listOfFiles = ['file:'+inputdir+'HTo2LongLivedTo2mu2jets_MiniAOD_CMSSW_12_4_11_patch3_nsegments2_'+str(i+1)+'.root' for i in range(8)]
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring( 'file:HTo2LongLivedTo2mu2jets_MiniAOD_CMSSW_12_4_11_patch3_nsegments2_5.root' ),
+    fileNames = cms.untracked.vstring( '/store/user/rlopezru/Samples/DDM_2022/HTo2LongLivedTo2mu2jets_MH-1000_MFF-350_CTau-3500mm_TuneCP5_13p6TeV_pythia8/HTo2LongLivedTo2mu2jets_MH-1000_MFF-350_CTau-3500mm_TuneCP5_13p6TeV_pythia8_CMSSW_13_2_0_MiniAOD/230620_095702/0000/step0_1.root' ),
     secondaryFileNames = cms.untracked.vstring(),
     skipEvents = cms.untracked.uint32(0)
   )
-process.GlobalTag = GlobalTag(process.GlobalTag, '124X_mcRun3_2022_realistic_v12')
+
+# Define global tag
+gTag = '124X_mcRun3_2022_realistic_postEE_v1'
+process.GlobalTag = GlobalTag(process.GlobalTag, gTag)
 
 ## Define the process to run 
 ## 
-process.load("Analysis.DisplacedMuons-Ntuplizer.HTo2LL_ntuples_cfi")
+process.load("DisplacedMuons-FrameWork.Ntuplizer.HTo2LL_ntuples_MiniAOD_cfi")
 
 process.p = cms.EndPath(process.ntuples)

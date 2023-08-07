@@ -15,11 +15,8 @@ WORKPATH = ''
 for level in runningfile.split('/')[:-1]:
     WORKPATH += level
     WORKPATH += '/'
-EOSPATH = '/eos/user/r/rlopezru/DisplacedMuons-Analyzer_out/'
-
-# Read dat file
-datFile = WORKPATH + 'dat/Samples_Spring23.json'
-dat = json.load(open(datFile,'r'))
+EOSPATH = '/eos/user/r/rlopezru/www/DisplacedMuons_Studies/'
+www = '/eos/user/r/rlopezru/www'
 
 def makeEfficiencyPlot(hfile, dtree, hname, tag, collection, names, color=r.kBlue+1, texts=[]):
 
@@ -260,11 +257,16 @@ if __name__ == '__main__':
     r.gStyle.SetPaintTextFormat("3.2f")
     parser = ArgumentParser()
     parser.add_argument('-t', '--tag',   dest='tag')
+    parser.add_argument('-D', '--dat',   dest='dat')
     parser.add_argument('-a', '--aod',   dest='aod',      action='store_true')
     parser.add_argument('-f', '--force', dest='force_rm', action='store_true')
     args = parser.parse_args()
     gTag = args.tag   
  
+    # Read dat file
+    datFile = WORKPATH + args.dat
+    dat = json.load(open(datFile,'r'))
+
     data = 'MiniAOD'
     if args.aod: data = 'AOD'
     
@@ -272,6 +274,9 @@ if __name__ == '__main__':
     collections = ['dsa', 'dgl']
 
     # Trees
+    trees = []
+    trees.append(DTree('HTo2LongLived_1000_350_3500',  'HTo2LLTo2mu2jets (1000,350,3500) ReMiniAOD',  dat['HTo2LongLived_1000_350_3500']['ReMiniAOD-Ntuples'],       gTag, isData = False))
+    '''
     trees_originalFilter = []
     trees_originalFilter.append(DTree('HTo2LongLived_400_150_4000','H #rightarrow SS (400,150,4000)', dat['HTo2LongLived_400_150_4000']['MiniAOD-Ntuples'], gTag, isData = False))
     trees_originalFilter.append(DTree('HTo2LongLived_125_20_1300', 'H #rightarrow SS (125,20,1300)',  dat['HTo2LongLived_125_20_1300']['MiniAOD-Ntuples'],  gTag, isData = False))
@@ -283,15 +288,18 @@ if __name__ == '__main__':
     trees_nsegmentsFilter.append(DTree('HTo2LongLived_125_20_1300_nseg2', 'H #rightarrow SS (125,20,1300)',  dat['HTo2LongLived_125_20_1300']['MiniAOD-Ntuples_nsegments2'],  gTag, isData = False))
     trees_nsegmentsFilter.append(DTree('HTo2LongLived_125_20_130_nseg2',  'H #rightarrow SS (125,20,130)',   dat['HTo2LongLived_125_20_130']['MiniAOD-Ntuples_nsegments2'],   gTag, isData = False))
     trees_nsegmentsFilter.append(DTree('HTo2LongLived_125_20_13_nseg2',   'H #rightarrow SS (125,20,13)',    dat['HTo2LongLived_125_20_13']['MiniAOD-Ntuples_nsegments2'],    gTag, isData = False))
+    '''
 
     if not os.path.exists(EOSPATH+'Plots/'+args.tag):
         os.makedirs(EOSPATH+'Plots/'+args.tag)
 
-    for dtree in trees_originalFilter + trees_nsegmentsFilter:
+    for dtree in trees:
         dtree.merge(args.force_rm)
 
-        if not os.path.exists(EOSPATH+'Plots/'+args.tag+'/'+dtree.name):
-            os.makedirs(EOSPATH+'Plots/'+args.tag+'/'+dtree.name)
+        if not os.path.exists(EOSPATH+'Plots/'+args.tag+'/'+dtree.short_name):
+            os.system('mkdir -p '+EOSPATH+'Plots/'+args.tag+'/'+dtree.short_name)
+            os.system('cp {0}/index.php {0}/DisplacedMuons_Studies/Plots/{1}/{2}'.format(www,gTag,dtree.short_name))
+
 
         hfile = r.TFile(dtree.targetFile)
 
@@ -318,8 +326,9 @@ if __name__ == '__main__':
                 makeVarPlot(hfile, dtree, h, args.tag, collection, names=['reco::Track({0})'.format(collection),'pat::Muon({0})'.format(collection)], color=colors[n], texts=texts, ylog=False) 
             for h in hists_log:
                 makeVarPlot(hfile, dtree, h, args.tag, collection, names=['reco::Track({0})'.format(collection),'pat::Muon({0})'.format(collection)], color=colors[n], texts=texts, ylog=True)
-            for h in hists_eff:
-                makeEfficiencyPlot(hfile, dtree, h, args.tag, collection, names=['reco::Track({0})'.format(collection),'pat::Muon({0})'.format(collection)], color=colors[n], texts=texts)
+            if hists_eff:
+                for h in hists_eff:
+                    makeEfficiencyPlot(hfile, dtree, h, args.tag, collection, names=['reco::Track({0})'.format(collection),'pat::Muon({0})'.format(collection)], color=colors[n], texts=texts)
             #makePlot(hfile, dtree, "h_pt_residual", args.tag, collection, name='pat::Muon({0})'.format(collection), color=r.kAzure, texts=texts, ylog=False)
-        make2DPlot(hfile, dtree, args.tag, "h_matched_IDS_2D", zlog=False, cut=False)
+        #make2DPlot(hfile, dtree, args.tag, "h_matched_IDS_2D", zlog=False, cut=False)
         print('>> DONE') 

@@ -147,7 +147,6 @@ class DTree:
             command = 'hadd {0} '.format(self.targetFile)
             for i,_name in enumerate(self.name):
                 command += '{0} '.format(self.histsDir+'merged_hists_{0}.root'.format(_name))
-        print(command) 
         os.system(command)
         print('>> Merging done')
 

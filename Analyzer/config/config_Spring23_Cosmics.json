@@ -14,6 +14,11 @@
             "tracks":   [],
             "muons":    []
     },
+    "Cosmics_2022C_MiniAOD_ReReco": {
+            "triggers": ["HLT_L2Mu10_NoVertex_NoBPTX3BX"],
+            "tracks":   [],
+            "muons":    []
+    },
     "Cosmics_2022D_MiniAOD_ReReco": {
             "triggers": ["HLT_L2Mu10_NoVertex_NoBPTX3BX"],
             "tracks":   [],
@@ -60,6 +65,11 @@
             "muons":  ["pt > 3.5","ID"]
     },
     "HTo2LongLived_125_20_13": {
+            "triggers": [],
+            "tracks": ["pt > 3.5","ID"],
+            "muons":  ["pt > 3.5","ID"]
+    },
+    "HTo2LongLived_1000_350_3500": {
             "triggers": [],
             "tracks": ["pt > 3.5","ID"],
             "muons":  ["pt > 3.5","ID"]

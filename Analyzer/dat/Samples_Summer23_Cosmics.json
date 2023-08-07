@@ -5,7 +5,7 @@
     "Cosmics_2022C": {
             "AOD-Ntuples":                "/eos/user/r/rlopezru/Samples/NoBPTX/CosmicsAnalysis_Run2022C_AOD-Ntuples/230421_130233/0000/",
             "MiniAOD-Ntuples_old":        "/eos/user/r/rlopezru/Samples/NoBPTX/CosmicsAnalysis_Run2022C_MiniAOD-Ntuples/230421_160633/0000/",
-            "MiniAOD-Ntuples_ReReco":     ""
+            "MiniAOD_ReReco":             "/eos/user/r/rlopezru/Samples/NoBPTX/CosmicsAnalysis_Run2022C_10Dec2022_MiniAOD-Ntuples_CMSSW_13_2_0_pre1/230613_142822/0000/"
     },
     "Cosmics_2022D": {
             "MiniAOD_ReReco":             "/eos/user/r/rlopezru/Samples/NoBPTX/CosmicsAnalysis_Run2022D_10Dec2022_MiniAOD-Ntuples_CMSSW_13_2_0_pre1/230613_082604/0000/"
