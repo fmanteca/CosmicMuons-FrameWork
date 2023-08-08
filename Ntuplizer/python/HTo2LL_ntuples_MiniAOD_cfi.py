@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 ntuples = cms.EDAnalyzer('ntuplizer',
-    nameOfOutput = cms.string('Ntuples.root'),
+    nameOfOutput = cms.string('ntuple.root'),
     isData                        = cms.bool(False),
     isAOD                         = cms.bool(False),
     EventInfo                     = cms.InputTag("generator"),

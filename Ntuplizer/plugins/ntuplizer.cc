@@ -124,6 +124,12 @@ class ntuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
       Int_t dgl_nLostMuonCSCHits[200] = {0};
       Int_t dgl_nLostMuonRPCHits[200] = {0};
 
+      // Variables for tag and probe
+      bool dgl_passTagID[200] = {false};
+      bool dgl_hasProbe[200] = {false};
+      Int_t dgl_probeID[200] = {0};
+      Float_t dgl_cosAlpha[200] = {0.};
+
       // ----------------------------------
       // displacedStandAloneMuons
       // ----------------------------------
@@ -338,6 +344,12 @@ void ntuplizer::beginJob() {
    tree_out->Branch("dgl_nLostMuonDTHits", dgl_nLostMuonDTHits, "dgl_nLostMuonDTHits[ndgl]/I");
    tree_out->Branch("dgl_nLostMuonCSCHits", dgl_nLostMuonCSCHits, "dgl_nLostMuonCSCHits[ndgl]/I");
    tree_out->Branch("dgl_nLostMuonRPCHits", dgl_nLostMuonRPCHits, "dgl_nLostMuonRPCHits[ndgl]/I");
+   if (isData) {
+     tree_out->Branch("dgl_passTagID", dgl_passTagID, "dgl_passTagID[ndgl]/O");
+     tree_out->Branch("dgl_hasProbe", dgl_hasProbe, "dgl_hasProbe[ndgl]/O");
+     tree_out->Branch("dgl_probeID", dgl_probeID, "dgl_probeID[ndgl]/I");
+     tree_out->Branch("dgl_cosAlpha", dgl_cosAlpha, "dgl_cosAlpha[ndgl]/F");
+   }
 
    // ----------------------------------
    // displacedStandAloneMuons
@@ -549,6 +561,40 @@ void ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      dgl_nLostMuonDTHits[ndgl] = dgl.hitPattern().numberOfLostMuonDTHits();
      dgl_nLostMuonCSCHits[ndgl] = dgl.hitPattern().numberOfLostMuonCSCHits();
      dgl_nLostMuonRPCHits[ndgl] = dgl.hitPattern().numberOfLostMuonRPCHits();
+     
+     // Fill tag and probe variables
+     if (isData) {
+       // Check if muon passes ID
+       if (dgl.phi() >= -0.6 || dgl.phi() <= -2.6) {continue;}
+       if (abs(dgl.eta()) >= 0.9) {continue;}
+       if (dgl.pt() <= 20) {continue;}
+       if (dgl.ptError()/dgl.pt() >= 0.3) {continue;}
+       if (dgl.hitPattern().numberOfMuonHits() <= 12) {continue;}
+       if (dgl.hitPattern().numberOfValidStripHits() <= 5) {continue;}
+       dgl_passTagID[ndgl] = true;
+       TVector3 v_tag = TVector3();
+       v_tag.SetPtEtaPhi(dgl.pt(), dgl.eta(), dgl.phi());
+       for (unsigned int j = 0; j < dgls->size(); j++) {
+         if (i == j) {continue;}
+         const reco::Track& probe_cand(dgls->at(j));
+         if (probe_cand.hitPattern().numberOfValidMuonDTHits()+probe_cand.hitPattern().numberOfValidMuonCSCHits() <= 12) {continue;}
+         if (probe_cand.pt() <= 3.5) {continue;} 
+         TVector3 v_probe = TVector3();
+         v_probe.SetPtEtaPhi(probe_cand.pt(), probe_cand.eta(), probe_cand.phi());
+         if (v_tag.Angle(v_probe) > 2.8) {
+           if (!dgl_hasProbe[ndgl]) {
+             dgl_hasProbe[ndgl] = true;
+             dgl_probeID[ndgl] = j;
+             dgl_cosAlpha[ndgl] = cos(v_tag.Angle(v_probe));
+           } else if (dgl_hasProbe[ndgl] and probe_cand.pt() > dgls->at(dgl_probeID[ndgl]).pt()) {
+             dgl_probeID[ndgl] = j;
+             dgl_cosAlpha[ndgl] = cos(v_tag.Angle(v_probe));
+           }
+         }
+       }
+     }
+      
+
      ndgl++;
    }
 

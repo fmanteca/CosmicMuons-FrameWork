@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 import os
 
 #################################  CONSTANTS  #################################################
-ERA = 'F'
+ERA = 'C'
+ReReco = True
 ###############################################################################################
 
 
@@ -29,14 +30,15 @@ nEvents = 100
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(nEvents) )
 
 # Read events
-listOfFiles = ['/store/user/rlopezru/Samples/NoBPTX/Cosmics_2022G_PromptReco_CMSSW_13_2_0_pre1_MiniAOD/230526_123154/0000/Cosmics_2022G_PromptReco_CMSSW_13_2_0_pre1_MiniAOD_155.root']
+listOfFiles = ['/store/data/Run2022C/NoBPTX/MINIAOD/27Jun2023-v1/2830000/02e0b6af-038c-4e7d-8e20-bc5408f27cf1.root']
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring( listOfFiles ),
     secondaryFileNames = cms.untracked.vstring(),
     skipEvents = cms.untracked.uint32(0)
   )
-if ERA in 'ABCD': gTag = '124X_dataRun3_PromptAnalysis_v1'
-if ERA in 'EFG':  gTag = '124X_dataRun3_Prompt_v10'
+if ERA in 'ABCD' and not ReReco: gTag = '124X_dataRun3_PromptAnalysis_v1'
+if ERA in 'ABCDE' and ReReco:    gTag = '124X_dataRun3_v15'
+if ERA in 'FG' and not ReReco:   gTag = '124X_dataRun3_PromptAnalysis_v2'
 process.GlobalTag = GlobalTag(process.GlobalTag, gTag)
 
 ## Define the process to run 
