@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 ntuples = cms.EDAnalyzer('ntuplizer',
-    nameOfOutput = cms.string('HTo2LongLivedTo2mu2jets_MiniAOD-Ntuples.root'),
-    isData                        = cms.bool(True),
+    nameOfOutput = cms.string('Ntuples.root'),
+    isData                        = cms.bool(False),
     isAOD                         = cms.bool(False),
     EventInfo                     = cms.InputTag("generator"),
     RunInfo                       = cms.InputTag("generator"),
