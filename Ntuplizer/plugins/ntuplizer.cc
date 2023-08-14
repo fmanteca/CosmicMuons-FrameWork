@@ -32,6 +32,11 @@
 #include "TH1F.h"
 #include "TFile.h"
 
+namespace MTYPE {
+  const char* DSA = "DSA";
+  const char* DGL = "DGL";
+}
+
 float dxy_value(const reco::GenParticle &p, const reco::Vertex &pv){
     float vx = p.vx();
     float vy = p.vy();
@@ -43,6 +48,50 @@ float dxy_value(const reco::GenParticle &p, const reco::Vertex &pv){
     return dxy;
 }
 
+bool passTagID(const reco::Track *track, const char* mtype) {
+    bool passID = false;
+    if (mtype==MTYPE::DSA) {
+       if (track->phi() >= -0.8 || track->phi() <= -2.1)        {return passID;}
+       if (abs(track->eta()) >= 0.7)                            {return passID;}
+       if (track->pt() <= 12.5)                                 {return passID;}
+       if (track->ptError()/track->pt() >= 0.2)                 {return passID;}
+       if (track->hitPattern().numberOfValidMuonDTHits() <= 30) {return passID;}
+       if (track->normalizedChi2() >= 2)                        {return passID;}
+       passID = true;
+    } else if (mtype==MTYPE::DGL) {
+       if (track->phi() >= -0.6 || track->phi() <= -2.6)      {return passID;}
+       if (abs(track->eta()) >= 0.9)                          {return passID;}
+       if (track->pt() <= 20)                                 {return passID;}
+       if (track->ptError()/track->pt() >= 0.3)               {return passID;}
+       if (track->hitPattern().numberOfMuonHits() <= 12)      {return passID;}
+       if (track->hitPattern().numberOfValidStripHits() <= 5) {return passID;}
+       passID = true;
+    } else {
+      std::cout << "Error (in passTagID): wrong muon type" << std::endl;
+    }
+    return passID;
+}
+
+bool passProbeID(const reco::Track *track, const TVector3 &v_tag, const char* mtype) {
+    bool passID = false;
+    if (mtype==MTYPE::DSA) {
+       if (track->hitPattern().numberOfValidMuonDTHits()+track->hitPattern().numberOfValidMuonCSCHits() <= 12) {return passID;}
+       if (track->pt() <= 3.5) {return passID;}
+       TVector3 v_probe = TVector3();
+       v_probe.SetPtEtaPhi(track->pt(), track->eta(), track->phi());
+       if (v_probe.Angle(v_tag) <= 2.1) {return passID;}
+       passID = true;
+    } else if (mtype==MTYPE::DGL) {
+       if (track->pt() <= 20) {return passID;}
+       TVector3 v_probe = TVector3();
+       v_probe.SetPtEtaPhi(track->pt(), track->eta(), track->phi());
+       if (v_probe.Angle(v_tag) <= 2.8) {return passID;}
+       passID = true;
+    } else {
+      std::cout << "Error (in passProbeID): wrong muon type" << std::endl;
+    }
+    return passID;
+}
 
 class ntuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
    public:
@@ -156,6 +205,12 @@ class ntuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
       Int_t dsa_dtStationsWithValidHits[200] = {0};
       Int_t dsa_cscStationsWithValidHits[200] = {0};
 
+      // Variables for tag and probe
+      bool dsa_passTagID[200] = {false};
+      bool dsa_hasProbe[200] = {false};
+      Int_t dsa_probeID[200] = {0};
+      Float_t dsa_cosAlpha[200] = {0.};
+
       // ----------------------------------
       // displacedMuons
       // ----------------------------------
@@ -187,6 +242,12 @@ class ntuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
       Int_t dmu_dsa_dtStationsWithValidHits[200] = {0};
       Int_t dmu_dsa_cscStationsWithValidHits[200] = {0};
       Int_t dmu_dsa_nsegments[200] = {0};
+      // Variables for tag and probe
+      bool dmu_dsa_passTagID[200] = {false};
+      bool dmu_dsa_hasProbe[200] = {false};
+      Int_t dmu_dsa_probeID[200] = {0};
+      Float_t dmu_dsa_cosAlpha[200] = {0.};
+
       Float_t dmu_dgl_pt[200] = {0.};
       Float_t dmu_dgl_eta[200] = {0.};
       Float_t dmu_dgl_phi[200] = {0.};
@@ -202,6 +263,12 @@ class ntuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
       Int_t dmu_dgl_nValidMuonRPCHits[200] = {0};
       Int_t dmu_dgl_nValidStripHits[200] = {0};
       Int_t dmu_dgl_nhits[200] = {0};
+      // Variables for tag and probe
+      bool dmu_dgl_passTagID[200] = {false};
+      bool dmu_dgl_hasProbe[200] = {false};
+      Int_t dmu_dgl_probeID[200] = {0};
+      Float_t dmu_dgl_cosAlpha[200] = {0.};
+
       Float_t dmu_dtk_pt[200] = {0.};
       Float_t dmu_dtk_eta[200] = {0.};
       Float_t dmu_dtk_phi[200] = {0.};
@@ -376,6 +443,12 @@ void ntuplizer::beginJob() {
    tree_out->Branch("dsa_nLostMuonRPCHits", dsa_nLostMuonRPCHits, "dsa_nLostMuonRPCHits[ndsa]/I");
    tree_out->Branch("dsa_dtStationsWithValidHits", dsa_dtStationsWithValidHits, "dsa_dtStationsWithValidHits[ndsa]/I");
    tree_out->Branch("dsa_cscStationsWithValidHits", dsa_cscStationsWithValidHits, "dsa_cscStationsWithValidHits[ndsa]/I");
+   if (isData) {
+     tree_out->Branch("dsa_passTagID", dsa_passTagID, "dsa_passTagID[ndsa]/O");
+     tree_out->Branch("dsa_hasProbe", dsa_hasProbe, "dsa_hasProbe[ndsa]/O");
+     tree_out->Branch("dsa_probeID", dsa_probeID, "dsa_probeID[ndsa]/I");
+     tree_out->Branch("dsa_cosAlpha", dsa_cosAlpha, "dsa_cosAlpha[ndsa]/F");
+   }
 
    // ----------------------------------
    // displacedMuons
@@ -409,6 +482,12 @@ void ntuplizer::beginJob() {
    tree_out->Branch("dmu_dsa_dtStationsWithValidHits", dmu_dsa_dtStationsWithValidHits, "dmu_dsa_dtStationsWithValidHits[ndmu]/I");
    tree_out->Branch("dmu_dsa_cscStationsWithValidHits", dmu_dsa_cscStationsWithValidHits, "dmu_dsa_cscStationsWithValidHits[ndmu]/I");
    tree_out->Branch("dmu_dsa_nsegments", dmu_dsa_nsegments, "dmu_dsa_nsegments[ndmu]/I");
+   if (isData) {
+     tree_out->Branch("dmu_dsa_passTagID", dmu_dsa_passTagID, "dmu_dsa_passTagID[ndmu]/O");
+     tree_out->Branch("dmu_dsa_hasProbe", dmu_dsa_hasProbe, "dmu_dsa_hasProbe[ndmu]/O");
+     tree_out->Branch("dmu_dsa_probeID", dmu_dsa_probeID, "dmu_dsa_probeID[ndmu]/I");
+     tree_out->Branch("dmu_dsa_cosAlpha", dmu_dsa_cosAlpha, "dmu_dsa_cosAlpha[ndmu]/F");
+   }
    // dmu_dgl
    tree_out->Branch("dmu_dgl_pt", dmu_dgl_pt, "dmu_dgl_pt[ndmu]/F");
    tree_out->Branch("dmu_dgl_eta", dmu_dgl_eta, "dmu_dgl_eta[ndmu]/F");
@@ -425,6 +504,12 @@ void ntuplizer::beginJob() {
    tree_out->Branch("dmu_dgl_nValidMuonRPCHits", dmu_dgl_nValidMuonRPCHits, "dmu_dgl_nValidMuonRPCHits[ndmu]/I");
    tree_out->Branch("dmu_dgl_nValidStripHits", dmu_dgl_nValidStripHits, "dmu_dgl_nValidStripHits[ndmu]/I");
    tree_out->Branch("dmu_dgl_nhits", dmu_dgl_nhits, "dmu_dgl_nhits[ndmu]/I");
+   if (isData) {
+     tree_out->Branch("dmu_dgl_passTagID", dmu_dgl_passTagID, "dmu_dgl_passTagID[ndmu]/O");
+     tree_out->Branch("dmu_dgl_hasProbe", dmu_dgl_hasProbe, "dmu_dgl_hasProbe[ndmu]/O");
+     tree_out->Branch("dmu_dgl_probeID", dmu_dgl_probeID, "dmu_dgl_probeID[ndmu]/I");
+     tree_out->Branch("dmu_dgl_cosAlpha", dmu_dgl_cosAlpha, "dmu_dgl_cosAlpha[ndmu]/F");
+   }
    // dmu_dtk
    tree_out->Branch("dmu_dtk_pt", dmu_dtk_pt, "dmu_dtk_pt[ndmu]/F");
    tree_out->Branch("dmu_dtk_eta", dmu_dtk_eta, "dmu_dtk_eta[ndmu]/F");
@@ -562,39 +647,46 @@ void ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      dgl_nLostMuonCSCHits[ndgl] = dgl.hitPattern().numberOfLostMuonCSCHits();
      dgl_nLostMuonRPCHits[ndgl] = dgl.hitPattern().numberOfLostMuonRPCHits();
      
+     // ---------------------------------------------------------
      // Fill tag and probe variables
+     //   First, reset the variables
+     dgl_passTagID[ndgl] = false;
+     dgl_hasProbe[ndgl] = false;
+     dgl_probeID[ndgl] = 0;
+     dgl_cosAlpha[ndgl] = 0.;
+
      if (isData) {
        // Check if muon passes ID
-       if (dgl.phi() >= -0.6 || dgl.phi() <= -2.6) {continue;}
-       if (abs(dgl.eta()) >= 0.9) {continue;}
-       if (dgl.pt() <= 20) {continue;}
-       if (dgl.ptError()/dgl.pt() >= 0.3) {continue;}
-       if (dgl.hitPattern().numberOfMuonHits() <= 12) {continue;}
-       if (dgl.hitPattern().numberOfValidStripHits() <= 5) {continue;}
-       dgl_passTagID[ndgl] = true;
+       dgl_passTagID[ndgl] = passTagID(&dgl, "DGL");
+       if (!dgl_passTagID[ndgl]) {continue;}
+       // Search probe
        TVector3 v_tag = TVector3();
        v_tag.SetPtEtaPhi(dgl.pt(), dgl.eta(), dgl.phi());
-       for (unsigned int j = 0; j < dgls->size(); j++) {
+       const reco::Track *prtemp = nullptr; // pointer for temporal probe (initialized to nullptr)
+       for (unsigned int j = 0; j < dgls->size(); j++) { // Loop over the rest of the muons
          if (i == j) {continue;}
-         const reco::Track& probe_cand(dgls->at(j));
-         if (probe_cand.hitPattern().numberOfValidMuonDTHits()+probe_cand.hitPattern().numberOfValidMuonCSCHits() <= 12) {continue;}
-         if (probe_cand.pt() <= 3.5) {continue;} 
-         TVector3 v_probe = TVector3();
-         v_probe.SetPtEtaPhi(probe_cand.pt(), probe_cand.eta(), probe_cand.phi());
-         if (v_tag.Angle(v_probe) > 2.8) {
+         const reco::Track& prcand(dgls->at(j));
+         if (passProbeID(&prcand, v_tag, "DGL")) {
+           TVector3 v_probe = TVector3();
+           v_probe.SetPtEtaPhi(prcand.pt(), prcand.eta(), prcand.phi());
            if (!dgl_hasProbe[ndgl]) {
              dgl_hasProbe[ndgl] = true;
+             prtemp = &(dgls->at(j));
              dgl_probeID[ndgl] = j;
              dgl_cosAlpha[ndgl] = cos(v_tag.Angle(v_probe));
-           } else if (dgl_hasProbe[ndgl] and probe_cand.pt() > dgls->at(dgl_probeID[ndgl]).pt()) {
-             dgl_probeID[ndgl] = j;
-             dgl_cosAlpha[ndgl] = cos(v_tag.Angle(v_probe));
+           } else {
+             if (dgl_hasProbe[ndgl] and prcand.pt() > prtemp->pt()) {
+               prtemp = &(dsas->at(j));
+               dgl_probeID[ndgl] = j;
+               dgl_cosAlpha[ndgl] = cos(v_tag.Angle(v_probe));
+             } else {
+               std::cout << ">> Probe candidate " << j << " has lower pt than " << dgl_probeID[ndgl] << std::endl;
+             }
            }
          }
        }
      }
-      
-
+     
      ndgl++;
    }
 
@@ -603,6 +695,7 @@ void ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    // ----------------------------------
    ndsa = 0;
    for (unsigned int i = 0; i < dsas->size(); i++) {
+     std::cout << ">> Begin dsa tracks" << std::endl;
      const reco::Track& dsa(dsas->at(i));
      dsa_pt[ndsa] = dsa.pt();
      dsa_eta[ndsa] = dsa.eta();
@@ -628,7 +721,47 @@ void ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
      dsa_dtStationsWithValidHits[ndsa] = dsa.hitPattern().dtStationsWithValidHits();
      dsa_cscStationsWithValidHits[ndsa] = dsa.hitPattern().cscStationsWithValidHits();
+     
+     // ---------------------------------------------------------
+     // Fill tag and probe variables
+     //   First, reset the variables
+     dsa_passTagID[ndsa] = false;
+     dsa_hasProbe[ndsa] = false;
+     dsa_probeID[ndsa] = 0;
+     dsa_cosAlpha[ndsa] = 0.;
 
+     if (isData) {
+       // Check if muon passes ID
+       dsa_passTagID[ndsa] = passTagID(&dsa, "DSA");
+       if (!dsa_passTagID[ndsa]) {continue;}
+       // Search probe
+       TVector3 v_tag = TVector3();
+       v_tag.SetPtEtaPhi(dsa.pt(), dsa.eta(), dsa.phi());
+       const reco::Track *prtemp = nullptr; // pointer for temporal probe (initialized to nullptr)
+       for (unsigned int j = 0; j < dsas->size(); j++) { // Loop over the rest of the muons
+         if (i == j) {continue;}
+         const reco::Track& prcand(dsas->at(j));
+         if (passProbeID(&prcand, v_tag, "DSA")) { // Angle criteria
+           TVector3 v_probe = TVector3();
+           v_probe.SetPtEtaPhi(prcand.pt(), prcand.eta(), prcand.phi());
+           if (!dsa_hasProbe[ndsa]) {
+             dsa_hasProbe[ndsa] = true;
+             prtemp = &(dsas->at(j));
+             dsa_probeID[ndsa] = j;
+             dsa_cosAlpha[ndsa] = cos(v_tag.Angle(v_probe));
+           } else {
+             if (dsa_hasProbe[ndsa] and prcand.pt() > prtemp->pt()) {
+               prtemp = &(dsas->at(j));
+               dsa_probeID[ndsa] = j;
+               dsa_cosAlpha[ndsa] = cos(v_tag.Angle(v_probe));
+             } else {
+               std::cout << ">> Probe candidate " << j << " has lower pt than " << dsa_probeID[ndsa] << std::endl;
+             }
+           }
+         }
+       }
+     }
+     
      ndsa++;
    }
 
@@ -637,7 +770,7 @@ void ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    // ----------------------------------
    ndmu = 0;;
    for (unsigned int i = 0; i < dmuons->size(); i++) {
-     std::cout << " - - ndmu: " << ndmu << std::endl;
+     //std::cout << " - - ndmu: " << ndmu << std::endl;
      const reco::Muon& dmuon(dmuons->at(i));
      dmu_isDGL[ndmu] = dmuon.isGlobalMuon();
      dmu_isDSA[ndmu] = dmuon.isStandAloneMuon();
@@ -650,7 +783,7 @@ void ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      dmu_numberOfMatchedRPCLayers[ndmu] = dmuon.numberOfMatchedRPCLayers();
 
      // Access the DGL track associated to the displacedMuon
-     std::cout << "isGlobalMuon: " << dmuon.isGlobalMuon() << std::endl;
+     //std::cout << "isGlobalMuon: " << dmuon.isGlobalMuon() << std::endl;
      if ( dmuon.isGlobalMuon() ) {
        const reco::Track* globalTrack = (dmuon.combinedMuon()).get();
        dmu_dgl_pt[ndmu] = globalTrack->pt();
@@ -668,6 +801,46 @@ void ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        dmu_dgl_nValidMuonRPCHits[ndmu] = globalTrack->hitPattern().numberOfValidMuonRPCHits();
        dmu_dgl_nValidStripHits[ndmu] = globalTrack->hitPattern().numberOfValidStripHits();
        dmu_dgl_nhits[ndmu] = globalTrack->hitPattern().numberOfValidHits();
+       if (isData) {
+         // Fill tag and probe variables
+         //   First, reset the variables
+         dmu_dgl_passTagID[ndmu] = false;
+         dmu_dgl_hasProbe[ndmu] = false;
+         dmu_dgl_probeID[ndmu] = 0;
+         dmu_dgl_cosAlpha[ndmu] = 0.;
+         // Check if muon passes tag ID
+         dmu_dgl_passTagID[ndmu] = passTagID(globalTrack, "DGL");
+         if (!dmu_dgl_passTagID[ndmu]) {continue;}
+         // Search probe
+         TVector3 v_tag = TVector3();
+         v_tag.SetPtEtaPhi(globalTrack->pt(), globalTrack->eta(), globalTrack->phi());
+         const reco::Muon *muonProbeTemp = nullptr; // pointer for temporal probe (initialized to nullptr)
+         for (unsigned int j = 0; j < dmuons->size(); j++) { // Loop over the rest of the muons
+           if (i == j) {continue;}
+           const reco::Muon& muonProbeCandidate(dmuons->at(j));
+           if (!muonProbeCandidate.isGlobalMuon()) {continue;} // Get only dgls
+           const reco::Track *trackProbeCandidate = (muonProbeCandidate.combinedMuon()).get();
+           if (passProbeID(trackProbeCandidate, v_tag, "DGL")) { 
+             TVector3 v_probe = TVector3();
+             v_probe.SetPtEtaPhi(trackProbeCandidate->pt(), trackProbeCandidate->eta(), trackProbeCandidate->phi());
+             if (!dmu_dgl_hasProbe[ndmu]) {
+               dmu_dgl_hasProbe[ndmu] = true;
+               muonProbeTemp = &(dmuons->at(j));
+               dmu_dgl_probeID[ndmu] = j;
+               dmu_dgl_cosAlpha[ndmu] = cos(v_tag.Angle(v_probe));
+             } else {
+               const reco::Track *trackProbeTemp = (muonProbeTemp->combinedMuon()).get();
+               if (trackProbeCandidate->pt() > trackProbeTemp->pt()) {
+                 muonProbeTemp = &(dmuons->at(j));
+                 dmu_dgl_probeID[ndmu] = j;
+                 dmu_dgl_cosAlpha[ndmu] = cos(v_tag.Angle(v_probe));
+               } else {
+                 std::cout << ">> Probe candidate " << j << " has lower pt than " << dmu_dgl_probeID[ndmu] << std::endl;
+               }
+             }
+           }
+         }
+       }
      } else {
        dmu_dgl_pt[ndmu] = 0;
        dmu_dgl_eta[ndmu] = 0;
@@ -684,10 +857,14 @@ void ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        dmu_dgl_nValidMuonRPCHits[ndmu] = 0;
        dmu_dgl_nValidStripHits[ndmu] = 0;
        dmu_dgl_nhits[ndmu] = 0;
-     }     
+       dmu_dgl_passTagID[ndmu] = false;
+       dmu_dgl_hasProbe[ndmu] = false;
+       dmu_dgl_probeID[ndmu] = 0;
+       dmu_dgl_cosAlpha[ndmu] = 0.;
+     }    
 
      // Access the DSA track associated to the displacedMuon
-     std::cout << "isStandAloneMuon: " << dmuon.isStandAloneMuon() << std::endl;
+     //std::cout << "isStandAloneMuon: " << dmuon.isStandAloneMuon() << std::endl;
      if ( dmuon.isStandAloneMuon() ) {
        const reco::Track* outerTrack = (dmuon.standAloneMuon()).get();
        dmu_dsa_pt[ndmu] = outerTrack->pt();
@@ -720,6 +897,46 @@ void ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          }
          dmu_dsa_nsegments[ndmu] = nsegments;
        }
+       if (isData) {
+         // Fill tag and probe variables
+         //   First, reset the variables
+         dmu_dsa_passTagID[ndmu] = false;
+         dmu_dsa_hasProbe[ndmu] = false;
+         dmu_dsa_probeID[ndmu] = 0;
+         dmu_dsa_cosAlpha[ndmu] = 0.;
+         // Check if muon passes tag ID
+         dmu_dsa_passTagID[ndmu] = passTagID(outerTrack, "DSA");
+         if (!dmu_dsa_passTagID[ndmu]) {continue;}
+         // Search probe
+         TVector3 v_tag = TVector3();
+         v_tag.SetPtEtaPhi(outerTrack->pt(), outerTrack->eta(), outerTrack->phi());
+         const reco::Muon *muonProbeTemp = nullptr; // pointer for temporal probe (initialized to nullptr)
+         for (unsigned int j = 0; j < dmuons->size(); j++) { // Loop over the rest of the muons
+           if (i == j) {continue;}
+           const reco::Muon& muonProbeCandidate(dmuons->at(j));
+           if (!muonProbeCandidate.isStandAloneMuon()) {continue;} // Get only dsas
+           const reco::Track *trackProbeCandidate = (muonProbeCandidate.standAloneMuon()).get();
+           if (passProbeID(trackProbeCandidate, v_tag, "DSA")) { 
+             TVector3 v_probe = TVector3();
+             v_probe.SetPtEtaPhi(trackProbeCandidate->pt(), trackProbeCandidate->eta(), trackProbeCandidate->phi());
+             if (!dmu_dsa_hasProbe[ndmu]) {
+               dmu_dsa_hasProbe[ndmu] = true;
+               muonProbeTemp = &(dmuons->at(j));
+               dmu_dsa_probeID[ndmu] = j;
+               dmu_dsa_cosAlpha[ndmu] = cos(v_tag.Angle(v_probe));
+             } else {
+               const reco::Track *trackProbeTemp = (muonProbeTemp->standAloneMuon()).get();
+               if (trackProbeCandidate->pt() > trackProbeTemp->pt()) {
+                 muonProbeTemp = &(dmuons->at(j));
+                 dmu_dsa_probeID[ndmu] = j;
+                 dmu_dsa_cosAlpha[ndmu] = cos(v_tag.Angle(v_probe));
+               } else {
+                 std::cout << ">> Probe candidate " << j << " has lower pt than " << dmu_dsa_probeID[ndmu] << std::endl;
+               }
+             }
+           }
+         }
+       }
      } else {
        dmu_dsa_pt[ndmu] = 0;
        dmu_dsa_eta[ndmu] = 0;
@@ -736,13 +953,17 @@ void ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        dmu_dsa_nValidMuonRPCHits[ndmu] = 0;
        dmu_dsa_nValidStripHits[ndmu] = 0;
        dmu_dsa_nhits[ndmu] = 0;
-       dmu_dsa_dtStationsWithValidHits[ndsa] = 0;
-       dmu_dsa_cscStationsWithValidHits[ndsa] = 0;
+       dmu_dsa_dtStationsWithValidHits[ndmu] = 0;
+       dmu_dsa_cscStationsWithValidHits[ndmu] = 0;
        dmu_dsa_nsegments[ndmu] = 0;
+       dmu_dsa_passTagID[ndmu] = false;
+       dmu_dsa_hasProbe[ndmu] = false;
+       dmu_dsa_probeID[ndmu] = 0;
+       dmu_dsa_cosAlpha[ndmu] = 0.;
      }
 
      // Access the DTK track associated to the displacedMuon
-     std::cout << "isTrackerMuon: " << dmuon.isTrackerMuon() << std::endl;
+     //std::cout << "isTrackerMuon: " << dmuon.isTrackerMuon() << std::endl;
      if ( dmuon.isTrackerMuon() ) {
        const reco::Track* innerTrack = (dmuon.track()).get();
        dmu_dtk_pt[ndmu] = innerTrack->pt();
@@ -779,7 +1000,7 @@ void ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
 
      ndmu++;
-     std::cout << "End muon" << std::endl;
+     //std::cout << "End muon" << std::endl;
    }
 
    if (!isData) {
@@ -822,7 +1043,7 @@ void ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        }
      }
      nGenMuon = iGM.size();
-     std::cout << "Number of gen muons = " << nGenMuon << std::endl;
+     //std::cout << "Number of gen muons = " << nGenMuon << std::endl;
 
      for (size_t i = 0; i < iGM.size(); i++) {
        const reco::GenParticle &genparticle = (*genParticles)[iGM.at(i)];
@@ -923,6 +1144,7 @@ void ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    //-> Fill tree
    tree_out->Fill();
+
 
 }
 
