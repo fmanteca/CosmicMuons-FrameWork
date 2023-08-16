@@ -22,7 +22,6 @@ cuts = {
     'RELPTERRL0p2':   Cut('{0}_ptError/{0}_pt<0.2', r'\Delta p_{T}/p_{T} < 0.2', perEvent=False),
     'DTHITSG30':      Cut('{0}_nValidMuonDTHits>30', r'DT hits > 30', perEvent=False),
     'nCHI2L2':        Cut('{0}_normalizedChi2<2', r'\chi^2/ndof < 2', perEvent=False),
-    #'DSATAGID':       cuts['PHIGm2p1']+cuts['PHILm0p8']+cuts['ABSETAL0p7']+cuts['PTG12p5']+cuts['RELPTERRL0p2']+cuts['DTHITSG30']+cuts['nCHI2L2'],
     'DSATAGID':       Cut('({0}_phi>-2.1)&&({0}_phi<-0.8)&&(abs({0}_eta)<0.7)&&({0}_pt>12.5)&&({0}_ptError/{0}_pt<0.2)&&({0}_nValidMuonDTHits>30)&&({0}_normalizedChi2<2)', 'DSA Tag ID', perEvent=False),
 }
 
@@ -50,40 +49,8 @@ samples = {
     'Cosmics2022C_CMSSW13': Sample('Cosmics 2022 C',
                                    f"{EOSPATH}/NoBPTX/CosmicsAnalysis_Run2022C_10Dec2022_MiniAOD-Ntuples_CMSSW_13_2_0_pre1/230613_142822/0000/",
                                    isData=True),
+    'Cosmics2022C_27Jun23_AOD': Sample('Cosmics 2022 C (AOD)', f"{EOSPATH}/NoBPTX/CosmicsAnalysis_Run2022C-27Jun2023-v1_AOD-Ntuples/230815_104243/0000/", isData=True),
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+legendNames = {'dsa': 'reco::Track DSA', 'dmu_dsa': 'reco::Muon DSA',
+               'dgl': 'reco::Track DGL', 'dmu_dgl': 'reco::Muon DGL'}
