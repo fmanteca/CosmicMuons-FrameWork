@@ -150,68 +150,6 @@ class ntuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
       Int_t run = 0;
 
       // ----------------------------------
-      // displacedGlobalMuons
-      // ----------------------------------
-      Int_t ndgl = 0;
-      Float_t dgl_pt[200] = {0.};
-      Float_t dgl_eta[200] = {0.};
-      Float_t dgl_phi[200] = {0.};
-      Float_t dgl_ptError[200] = {0.};
-      Float_t dgl_dxy[200] = {0.};
-      Float_t dgl_dz[200] = {0.};
-      Float_t dgl_normalizedChi2[200] = {0.};
-      Float_t dgl_charge[200] = {0.};
-      Int_t dgl_nMuonHits[200] = {0};
-      Int_t dgl_nValidMuonHits[200] = {0};
-      Int_t dgl_nValidMuonDTHits[200] = {0};
-      Int_t dgl_nValidMuonCSCHits[200] = {0};
-      Int_t dgl_nValidMuonRPCHits[200] = {0};
-      Int_t dgl_nValidStripHits[200] = {0};
-      Int_t dgl_nhits[200] = {0};
-      Int_t dgl_nLostMuonHits[200] = {0};
-      Int_t dgl_nLostMuonDTHits[200] = {0};
-      Int_t dgl_nLostMuonCSCHits[200] = {0};
-      Int_t dgl_nLostMuonRPCHits[200] = {0};
-
-      // Variables for tag and probe
-      bool dgl_passTagID[200] = {false};
-      bool dgl_hasProbe[200] = {false};
-      Int_t dgl_probeID[200] = {0};
-      Float_t dgl_cosAlpha[200] = {0.};
-
-      // ----------------------------------
-      // displacedStandAloneMuons
-      // ----------------------------------
-      Int_t ndsa = 0;
-      Float_t dsa_pt[200] = {0.};
-      Float_t dsa_eta[200] = {0.};
-      Float_t dsa_phi[200] = {0.};
-      Float_t dsa_ptError[200] = {0.};
-      Float_t dsa_dxy[200] = {0.};
-      Float_t dsa_dz[200] = {0.};
-      Float_t dsa_normalizedChi2[200] = {0.};
-      Float_t dsa_charge[200] = {0.};
-      Int_t dsa_nMuonHits[200] = {0};
-      Int_t dsa_nValidMuonHits[200] = {0};
-      Int_t dsa_nValidMuonDTHits[200] = {0};
-      Int_t dsa_nValidMuonCSCHits[200] = {0};
-      Int_t dsa_nValidMuonRPCHits[200] = {0};
-      Int_t dsa_nValidStripHits[200] = {0};
-      Int_t dsa_nhits[200] = {0};
-      Int_t dsa_nLostMuonHits[200] = {0};
-      Int_t dsa_nLostMuonDTHits[200] = {0};
-      Int_t dsa_nLostMuonCSCHits[200] = {0};
-      Int_t dsa_nLostMuonRPCHits[200] = {0};
-      Int_t dsa_dtStationsWithValidHits[200] = {0};
-      Int_t dsa_cscStationsWithValidHits[200] = {0};
-
-      // Variables for tag and probe
-      bool dsa_passTagID[200] = {false};
-      bool dsa_hasProbe[200] = {false};
-      Int_t dsa_probeID[200] = {0};
-      Float_t dsa_cosAlpha[200] = {0.};
-
-      // ----------------------------------
       // displacedMuons
       // ----------------------------------
       Int_t ndmu = 0;
@@ -224,6 +162,7 @@ class ntuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
       Int_t dmu_numberOfChambersCSCorDT[200] = {0};
       Int_t dmu_numberOfMatchedStations[200] = {0};
       Int_t dmu_numberOfMatchedRPCLayers[200] = {0};
+
       Float_t dmu_dsa_pt[200] = {0.};
       Float_t dmu_dsa_eta[200] = {0.};
       Float_t dmu_dsa_phi[200] = {0.};
@@ -355,10 +294,10 @@ ntuplizer::ntuplizer(const edm::ParameterSet& iConfig) {
    dglToken = consumes<edm::View<reco::Track> >  (parameters.getParameter<edm::InputTag>("displacedGlobalCollection"));
    dsaToken = consumes<edm::View<reco::Track> >  (parameters.getParameter<edm::InputTag>("displacedStandAloneCollection"));
    dmuToken = consumes<edm::View<reco::Muon> >  (parameters.getParameter<edm::InputTag>("displacedMuonCollection"));
-   if (!isData) {
+   /**if (!isData) {
      theGenParticleCollection = consumes<edm::View<reco::GenParticle> >  (parameters.getParameter<edm::InputTag>("genParticleCollection"));
      thePrimaryVertexCollection = consumes<edm::View<reco::Vertex> >  (parameters.getParameter<edm::InputTag>("PrimaryVertexCollection"));
-   }
+   }**/
 
    triggerBits_ = consumes<edm::TriggerResults> (parameters.getParameter<edm::InputTag>("bits"));
 }
@@ -387,68 +326,6 @@ void ntuplizer::beginJob() {
    tree_out->Branch("event", &event, "event/I");
    tree_out->Branch("lumiBlock", &lumiBlock, "lumiBlock/I");
    tree_out->Branch("run", &run, "run/I");
-
-   // ----------------------------------
-   // displacedGlobalMuons
-   // ----------------------------------
-   tree_out->Branch("ndgl", &ndgl, "ndgl/I");
-   tree_out->Branch("dgl_pt", dgl_pt, "dgl_pt[ndgl]/F");
-   tree_out->Branch("dgl_eta", dgl_eta, "dgl_eta[ndgl]/F");
-   tree_out->Branch("dgl_phi", dgl_phi, "dgl_phi[ndgl]/F");
-   tree_out->Branch("dgl_ptError", dgl_ptError, "dgl_ptError[ndgl]/F");
-   tree_out->Branch("dgl_dxy", dgl_dxy, "dgl_dxy[ndgl]/F");
-   tree_out->Branch("dgl_dz", dgl_dz, "dgl_dz[ndgl]/F");
-   tree_out->Branch("dgl_normalizedChi2", dgl_normalizedChi2, "dgl_normalizedChi2[ndgl]/F");
-   tree_out->Branch("dgl_charge", dgl_charge, "dgl_charge[ndgl]/F");
-   tree_out->Branch("dgl_nMuonHits", dgl_nMuonHits, "dgl_nMuonHits[ndgl]/I");
-   tree_out->Branch("dgl_nValidMuonHits", dgl_nValidMuonHits, "dgl_nValidMuonHits[ndgl]/I");
-   tree_out->Branch("dgl_nValidMuonDTHits", dgl_nValidMuonDTHits, "dgl_nValidMuonDTHits[ndgl]/I");
-   tree_out->Branch("dgl_nValidMuonCSCHits", dgl_nValidMuonCSCHits, "dgl_nValidMuonCSCHits[ndgl]/I");
-   tree_out->Branch("dgl_nValidMuonRPCHits", dgl_nValidMuonRPCHits, "dgl_nValidMuonRPCHits[ndgl]/I");
-   tree_out->Branch("dgl_nValidStripHits", dgl_nValidStripHits, "dgl_nValidStripHits[ndgl]/I");
-   tree_out->Branch("dgl_nhits", dgl_nhits, "dgl_nhits[ndgl]/I");
-   tree_out->Branch("dgl_nLostMuonHits", dgl_nLostMuonHits, "dgl_nLostMuonHits[ndgl]/I");
-   tree_out->Branch("dgl_nLostMuonDTHits", dgl_nLostMuonDTHits, "dgl_nLostMuonDTHits[ndgl]/I");
-   tree_out->Branch("dgl_nLostMuonCSCHits", dgl_nLostMuonCSCHits, "dgl_nLostMuonCSCHits[ndgl]/I");
-   tree_out->Branch("dgl_nLostMuonRPCHits", dgl_nLostMuonRPCHits, "dgl_nLostMuonRPCHits[ndgl]/I");
-   if (isData) {
-     tree_out->Branch("dgl_passTagID", dgl_passTagID, "dgl_passTagID[ndgl]/O");
-     tree_out->Branch("dgl_hasProbe", dgl_hasProbe, "dgl_hasProbe[ndgl]/O");
-     tree_out->Branch("dgl_probeID", dgl_probeID, "dgl_probeID[ndgl]/I");
-     tree_out->Branch("dgl_cosAlpha", dgl_cosAlpha, "dgl_cosAlpha[ndgl]/F");
-   }
-
-   // ----------------------------------
-   // displacedStandAloneMuons
-   // ----------------------------------
-   tree_out->Branch("ndsa", &ndsa, "ndsa/I");
-   tree_out->Branch("dsa_pt", dsa_pt, "dsa_pt[ndsa]/F");
-   tree_out->Branch("dsa_eta", dsa_eta, "dsa_eta[ndsa]/F");
-   tree_out->Branch("dsa_phi", dsa_phi, "dsa_phi[ndsa]/F");
-   tree_out->Branch("dsa_ptError", dsa_ptError, "dsa_ptError[ndsa]/F");
-   tree_out->Branch("dsa_dxy", dsa_dxy, "dsa_dxy[ndsa]/F");
-   tree_out->Branch("dsa_dz", dsa_dz, "dsa_dz[ndsa]/F");
-   tree_out->Branch("dsa_normalizedChi2", dsa_normalizedChi2, "dsa_normalizedChi2[ndsa]/F");
-   tree_out->Branch("dsa_charge", dsa_charge, "dsa_charge[ndsa]/F");
-   tree_out->Branch("dsa_nMuonHits", dsa_nMuonHits, "dsa_nMuonHits[ndsa]/I");
-   tree_out->Branch("dsa_nValidMuonHits", dsa_nValidMuonHits, "dsa_nValidMuonHits[ndsa]/I");
-   tree_out->Branch("dsa_nValidMuonDTHits", dsa_nValidMuonDTHits, "dsa_nValidMuonDTHits[ndsa]/I");
-   tree_out->Branch("dsa_nValidMuonCSCHits", dsa_nValidMuonCSCHits, "dsa_nValidMuonCSCHits[ndsa]/I");
-   tree_out->Branch("dsa_nValidMuonRPCHits", dsa_nValidMuonRPCHits, "dsa_nValidMuonRPCHits[ndsa]/I");
-   tree_out->Branch("dsa_nValidStripHits", dsa_nValidStripHits, "dsa_nValidStripHits[ndsa]/I");
-   tree_out->Branch("dsa_nhits", dsa_nhits, "dsa_nhits[ndsa]/I");
-   tree_out->Branch("dsa_nLostMuonHits", dsa_nLostMuonHits, "dsa_nLostMuonHits[ndsa]/I");
-   tree_out->Branch("dsa_nLostMuonDTHits", dsa_nLostMuonDTHits, "dsa_nLostMuonDTHits[ndsa]/I");
-   tree_out->Branch("dsa_nLostMuonCSCHits", dsa_nLostMuonCSCHits, "dsa_nLostMuonCSCHits[ndsa]/I");
-   tree_out->Branch("dsa_nLostMuonRPCHits", dsa_nLostMuonRPCHits, "dsa_nLostMuonRPCHits[ndsa]/I");
-   tree_out->Branch("dsa_dtStationsWithValidHits", dsa_dtStationsWithValidHits, "dsa_dtStationsWithValidHits[ndsa]/I");
-   tree_out->Branch("dsa_cscStationsWithValidHits", dsa_cscStationsWithValidHits, "dsa_cscStationsWithValidHits[ndsa]/I");
-   if (isData) {
-     tree_out->Branch("dsa_passTagID", dsa_passTagID, "dsa_passTagID[ndsa]/O");
-     tree_out->Branch("dsa_hasProbe", dsa_hasProbe, "dsa_hasProbe[ndsa]/O");
-     tree_out->Branch("dsa_probeID", dsa_probeID, "dsa_probeID[ndsa]/I");
-     tree_out->Branch("dsa_cosAlpha", dsa_cosAlpha, "dsa_cosAlpha[ndsa]/F");
-   }
 
    // ----------------------------------
    // displacedMuons
@@ -482,12 +359,10 @@ void ntuplizer::beginJob() {
    tree_out->Branch("dmu_dsa_dtStationsWithValidHits", dmu_dsa_dtStationsWithValidHits, "dmu_dsa_dtStationsWithValidHits[ndmu]/I");
    tree_out->Branch("dmu_dsa_cscStationsWithValidHits", dmu_dsa_cscStationsWithValidHits, "dmu_dsa_cscStationsWithValidHits[ndmu]/I");
    tree_out->Branch("dmu_dsa_nsegments", dmu_dsa_nsegments, "dmu_dsa_nsegments[ndmu]/I");
-   if (isData) {
-     tree_out->Branch("dmu_dsa_passTagID", dmu_dsa_passTagID, "dmu_dsa_passTagID[ndmu]/O");
-     tree_out->Branch("dmu_dsa_hasProbe", dmu_dsa_hasProbe, "dmu_dsa_hasProbe[ndmu]/O");
-     tree_out->Branch("dmu_dsa_probeID", dmu_dsa_probeID, "dmu_dsa_probeID[ndmu]/I");
-     tree_out->Branch("dmu_dsa_cosAlpha", dmu_dsa_cosAlpha, "dmu_dsa_cosAlpha[ndmu]/F");
-   }
+   tree_out->Branch("dmu_dsa_passTagID", dmu_dsa_passTagID, "dmu_dsa_passTagID[ndmu]/O");
+   tree_out->Branch("dmu_dsa_hasProbe", dmu_dsa_hasProbe, "dmu_dsa_hasProbe[ndmu]/O");
+   tree_out->Branch("dmu_dsa_probeID", dmu_dsa_probeID, "dmu_dsa_probeID[ndmu]/I");
+   tree_out->Branch("dmu_dsa_cosAlpha", dmu_dsa_cosAlpha, "dmu_dsa_cosAlpha[ndmu]/F");
    // dmu_dgl
    tree_out->Branch("dmu_dgl_pt", dmu_dgl_pt, "dmu_dgl_pt[ndmu]/F");
    tree_out->Branch("dmu_dgl_eta", dmu_dgl_eta, "dmu_dgl_eta[ndmu]/F");
@@ -504,14 +379,12 @@ void ntuplizer::beginJob() {
    tree_out->Branch("dmu_dgl_nValidMuonRPCHits", dmu_dgl_nValidMuonRPCHits, "dmu_dgl_nValidMuonRPCHits[ndmu]/I");
    tree_out->Branch("dmu_dgl_nValidStripHits", dmu_dgl_nValidStripHits, "dmu_dgl_nValidStripHits[ndmu]/I");
    tree_out->Branch("dmu_dgl_nhits", dmu_dgl_nhits, "dmu_dgl_nhits[ndmu]/I");
-   if (isData) {
-     tree_out->Branch("dmu_dgl_passTagID", dmu_dgl_passTagID, "dmu_dgl_passTagID[ndmu]/O");
-     tree_out->Branch("dmu_dgl_hasProbe", dmu_dgl_hasProbe, "dmu_dgl_hasProbe[ndmu]/O");
-     tree_out->Branch("dmu_dgl_probeID", dmu_dgl_probeID, "dmu_dgl_probeID[ndmu]/I");
-     tree_out->Branch("dmu_dgl_cosAlpha", dmu_dgl_cosAlpha, "dmu_dgl_cosAlpha[ndmu]/F");
-   }
+   tree_out->Branch("dmu_dgl_passTagID", dmu_dgl_passTagID, "dmu_dgl_passTagID[ndmu]/O");
+   tree_out->Branch("dmu_dgl_hasProbe", dmu_dgl_hasProbe, "dmu_dgl_hasProbe[ndmu]/O");
+   tree_out->Branch("dmu_dgl_probeID", dmu_dgl_probeID, "dmu_dgl_probeID[ndmu]/I");
+   tree_out->Branch("dmu_dgl_cosAlpha", dmu_dgl_cosAlpha, "dmu_dgl_cosAlpha[ndmu]/F");
    // dmu_dtk
-   tree_out->Branch("dmu_dtk_pt", dmu_dtk_pt, "dmu_dtk_pt[ndmu]/F");
+   /**tree_out->Branch("dmu_dtk_pt", dmu_dtk_pt, "dmu_dtk_pt[ndmu]/F");
    tree_out->Branch("dmu_dtk_eta", dmu_dtk_eta, "dmu_dtk_eta[ndmu]/F");
    tree_out->Branch("dmu_dtk_phi", dmu_dtk_phi, "dmu_dtk_phi[ndmu]/F");
    tree_out->Branch("dmu_dtk_ptError", dmu_dtk_ptError, "dmu_dtk_ptError[ndmu]/F");
@@ -525,9 +398,9 @@ void ntuplizer::beginJob() {
    tree_out->Branch("dmu_dtk_nValidMuonCSCHits", dmu_dtk_nValidMuonCSCHits, "dmu_dtk_nValidMuonCSCHits[ndmu]/I");
    tree_out->Branch("dmu_dtk_nValidMuonRPCHits", dmu_dtk_nValidMuonRPCHits, "dmu_dtk_nValidMuonRPCHits[ndmu]/I");
    tree_out->Branch("dmu_dtk_nValidStripHits", dmu_dtk_nValidStripHits, "dmu_dtk_nValidStripHits[ndmu]/I");
-   tree_out->Branch("dmu_dtk_nhits", dmu_dtk_nhits, "dmu_dtk_nhits[ndmu]/I");
+   tree_out->Branch("dmu_dtk_nhits", dmu_dtk_nhits, "dmu_dtk_nhits[ndmu]/I");**/
 
-   if (!isData) {
+   /**if (!isData) {
      // ----------------------------------
      // PrimaryVertices
      // ----------------------------------
@@ -567,7 +440,7 @@ void ntuplizer::beginJob() {
      tree_out->Branch("HardProcessParticle_vy", HardProcessParticle_vy, "HardProcessParticle_vy[nHardProcessParticle]/F");
      tree_out->Branch("HardProcessParticle_vz", HardProcessParticle_vz, "HardProcessParticle_vz[nHardProcessParticle]/F");
      tree_out->Branch("HardProcessParticle_pdgId", HardProcessParticle_pdgId, "HardProcessParticle_pdgId[nHardProcessParticle]/I");
-   }
+   }**/
 
    // Trigger branches
    for (unsigned int ihlt = 0; ihlt < HLTPaths_.size(); ihlt++) {
@@ -605,10 +478,6 @@ void ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByToken(dsaToken, dsas);
    iEvent.getByToken(dmuToken, dmuons);
    iEvent.getByToken(triggerBits_, triggerBits);
-   if (!isData){
-      iEvent.getByToken(thePrimaryVertexCollection, primaryvertices);
-      iEvent.getByToken(theGenParticleCollection, genParticles);
-   }
 
    // Count number of events read
    counts->Fill(0);
@@ -620,155 +489,9 @@ void ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    run = iEvent.id().run();
 
    // ----------------------------------
-   // displacedGlobalMuons Collection
-   // ----------------------------------
-   ndgl = 0;
-   for (unsigned int i = 0; i < dgls->size(); i++) {
-     const reco::Track& dgl(dgls->at(i));
-     dgl_pt[ndgl] = dgl.pt();
-     dgl_eta[ndgl] = dgl.eta();
-     dgl_phi[ndgl] = dgl.phi();
-     dgl_ptError[ndgl] = dgl.ptError();
-     dgl_dxy[ndgl] = dgl.dxy();
-     dgl_dz[ndgl] = dgl.dz();
-     dgl_normalizedChi2[ndgl] = dgl.normalizedChi2();
-     dgl_charge[ndgl] = dgl.charge();
-
-     dgl_nMuonHits[ndgl] = dgl.hitPattern().numberOfMuonHits();
-     dgl_nValidMuonDTHits[ndgl] = dgl.hitPattern().numberOfValidMuonDTHits();
-     dgl_nValidMuonCSCHits[ndgl] = dgl.hitPattern().numberOfValidMuonCSCHits();
-     dgl_nValidMuonRPCHits[ndgl] = dgl.hitPattern().numberOfValidMuonRPCHits();
-     dgl_nValidMuonHits[ndgl] = dgl.hitPattern().numberOfValidMuonHits();
-     dgl_nValidStripHits[ndgl] = dgl.hitPattern().numberOfValidStripHits();
-     dgl_nhits[ndgl] = dgl.hitPattern().numberOfValidHits();
-
-     dgl_nLostMuonHits[ndgl] = dgl.hitPattern().numberOfLostMuonHits();
-     dgl_nLostMuonDTHits[ndgl] = dgl.hitPattern().numberOfLostMuonDTHits();
-     dgl_nLostMuonCSCHits[ndgl] = dgl.hitPattern().numberOfLostMuonCSCHits();
-     dgl_nLostMuonRPCHits[ndgl] = dgl.hitPattern().numberOfLostMuonRPCHits();
-     
-     // ---------------------------------------------------------
-     // Fill tag and probe variables
-     //   First, reset the variables
-     dgl_passTagID[ndgl] = false;
-     dgl_hasProbe[ndgl] = false;
-     dgl_probeID[ndgl] = 0;
-     dgl_cosAlpha[ndgl] = 0.;
-
-     if (isData) {
-       // Check if muon passes ID
-       dgl_passTagID[ndgl] = passTagID(&dgl, "DGL");
-       if (!dgl_passTagID[ndgl]) {continue;}
-       // Search probe
-       TVector3 v_tag = TVector3();
-       v_tag.SetPtEtaPhi(dgl.pt(), dgl.eta(), dgl.phi());
-       const reco::Track *prtemp = nullptr; // pointer for temporal probe (initialized to nullptr)
-       for (unsigned int j = 0; j < dgls->size(); j++) { // Loop over the rest of the muons
-         if (i == j) {continue;}
-         const reco::Track& prcand(dgls->at(j));
-         if (passProbeID(&prcand, v_tag, "DGL")) {
-           TVector3 v_probe = TVector3();
-           v_probe.SetPtEtaPhi(prcand.pt(), prcand.eta(), prcand.phi());
-           if (!dgl_hasProbe[ndgl]) {
-             dgl_hasProbe[ndgl] = true;
-             prtemp = &(dgls->at(j));
-             dgl_probeID[ndgl] = j;
-             dgl_cosAlpha[ndgl] = cos(v_tag.Angle(v_probe));
-           } else {
-             if (dgl_hasProbe[ndgl] and prcand.pt() > prtemp->pt()) {
-               prtemp = &(dsas->at(j));
-               dgl_probeID[ndgl] = j;
-               dgl_cosAlpha[ndgl] = cos(v_tag.Angle(v_probe));
-             } else {
-               std::cout << ">> Probe candidate " << j << " has lower pt than " << dgl_probeID[ndgl] << std::endl;
-             }
-           }
-         }
-       }
-     }
-     
-     ndgl++;
-   }
-
-   // ----------------------------------
-   // displacedStandAloneMuons Collection
-   // ----------------------------------
-   ndsa = 0;
-   for (unsigned int i = 0; i < dsas->size(); i++) {
-     std::cout << ">> Begin dsa tracks" << std::endl;
-     const reco::Track& dsa(dsas->at(i));
-     dsa_pt[ndsa] = dsa.pt();
-     dsa_eta[ndsa] = dsa.eta();
-     dsa_phi[ndsa] = dsa.phi();
-     dsa_ptError[ndsa] = dsa.ptError();
-     dsa_dxy[ndsa] = dsa.dxy();
-     dsa_dz[ndsa] = dsa.dz();
-     dsa_normalizedChi2[ndsa] = dsa.normalizedChi2();
-     dsa_charge[ndsa] = dsa.charge();
-
-     dsa_nMuonHits[ndsa] = dsa.hitPattern().numberOfMuonHits();
-     dsa_nValidMuonHits[ndsa] = dsa.hitPattern().numberOfValidMuonHits();
-     dsa_nValidMuonDTHits[ndsa] = dsa.hitPattern().numberOfValidMuonDTHits();
-     dsa_nValidMuonCSCHits[ndsa] = dsa.hitPattern().numberOfValidMuonCSCHits();
-     dsa_nValidMuonRPCHits[ndsa] = dsa.hitPattern().numberOfValidMuonRPCHits();
-     dsa_nValidStripHits[ndsa] = dsa.hitPattern().numberOfValidStripHits();
-     dsa_nhits[ndsa] = dsa.hitPattern().numberOfValidHits();
-
-     dsa_nLostMuonHits[ndsa] = dsa.hitPattern().numberOfLostMuonHits();
-     dsa_nLostMuonDTHits[ndsa] = dsa.hitPattern().numberOfLostMuonDTHits();
-     dsa_nLostMuonCSCHits[ndsa] = dsa.hitPattern().numberOfLostMuonCSCHits();
-     dsa_nLostMuonRPCHits[ndsa] = dsa.hitPattern().numberOfLostMuonRPCHits();
-
-     dsa_dtStationsWithValidHits[ndsa] = dsa.hitPattern().dtStationsWithValidHits();
-     dsa_cscStationsWithValidHits[ndsa] = dsa.hitPattern().cscStationsWithValidHits();
-     
-     // ---------------------------------------------------------
-     // Fill tag and probe variables
-     //   First, reset the variables
-     dsa_passTagID[ndsa] = false;
-     dsa_hasProbe[ndsa] = false;
-     dsa_probeID[ndsa] = 0;
-     dsa_cosAlpha[ndsa] = 0.;
-
-     if (isData) {
-       // Check if muon passes ID
-       dsa_passTagID[ndsa] = passTagID(&dsa, "DSA");
-       if (!dsa_passTagID[ndsa]) {continue;}
-       // Search probe
-       TVector3 v_tag = TVector3();
-       v_tag.SetPtEtaPhi(dsa.pt(), dsa.eta(), dsa.phi());
-       const reco::Track *prtemp = nullptr; // pointer for temporal probe (initialized to nullptr)
-       for (unsigned int j = 0; j < dsas->size(); j++) { // Loop over the rest of the muons
-         if (i == j) {continue;}
-         const reco::Track& prcand(dsas->at(j));
-         if (passProbeID(&prcand, v_tag, "DSA")) { // Angle criteria
-           TVector3 v_probe = TVector3();
-           v_probe.SetPtEtaPhi(prcand.pt(), prcand.eta(), prcand.phi());
-           if (!dsa_hasProbe[ndsa]) {
-             dsa_hasProbe[ndsa] = true;
-             prtemp = &(dsas->at(j));
-             dsa_probeID[ndsa] = j;
-             dsa_cosAlpha[ndsa] = cos(v_tag.Angle(v_probe));
-           } else {
-             if (dsa_hasProbe[ndsa] and prcand.pt() > prtemp->pt()) {
-               prtemp = &(dsas->at(j));
-               dsa_probeID[ndsa] = j;
-               dsa_cosAlpha[ndsa] = cos(v_tag.Angle(v_probe));
-             } else {
-               std::cout << ">> Probe candidate " << j << " has lower pt than " << dsa_probeID[ndsa] << std::endl;
-             }
-           }
-         }
-       }
-     }
-     
-     ndsa++;
-   }
-
-   // ----------------------------------
    // displacedMuons Collection
    // ----------------------------------
-   ndmu = 0;;
+   ndmu = 0;
    for (unsigned int i = 0; i < dmuons->size(); i++) {
      //std::cout << " - - ndmu: " << ndmu << std::endl;
      const reco::Muon& dmuon(dmuons->at(i));
@@ -801,46 +524,6 @@ void ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        dmu_dgl_nValidMuonRPCHits[ndmu] = globalTrack->hitPattern().numberOfValidMuonRPCHits();
        dmu_dgl_nValidStripHits[ndmu] = globalTrack->hitPattern().numberOfValidStripHits();
        dmu_dgl_nhits[ndmu] = globalTrack->hitPattern().numberOfValidHits();
-       if (isData) {
-         // Fill tag and probe variables
-         //   First, reset the variables
-         dmu_dgl_passTagID[ndmu] = false;
-         dmu_dgl_hasProbe[ndmu] = false;
-         dmu_dgl_probeID[ndmu] = 0;
-         dmu_dgl_cosAlpha[ndmu] = 0.;
-         // Check if muon passes tag ID
-         dmu_dgl_passTagID[ndmu] = passTagID(globalTrack, "DGL");
-         if (!dmu_dgl_passTagID[ndmu]) {continue;}
-         // Search probe
-         TVector3 v_tag = TVector3();
-         v_tag.SetPtEtaPhi(globalTrack->pt(), globalTrack->eta(), globalTrack->phi());
-         const reco::Muon *muonProbeTemp = nullptr; // pointer for temporal probe (initialized to nullptr)
-         for (unsigned int j = 0; j < dmuons->size(); j++) { // Loop over the rest of the muons
-           if (i == j) {continue;}
-           const reco::Muon& muonProbeCandidate(dmuons->at(j));
-           if (!muonProbeCandidate.isGlobalMuon()) {continue;} // Get only dgls
-           const reco::Track *trackProbeCandidate = (muonProbeCandidate.combinedMuon()).get();
-           if (passProbeID(trackProbeCandidate, v_tag, "DGL")) { 
-             TVector3 v_probe = TVector3();
-             v_probe.SetPtEtaPhi(trackProbeCandidate->pt(), trackProbeCandidate->eta(), trackProbeCandidate->phi());
-             if (!dmu_dgl_hasProbe[ndmu]) {
-               dmu_dgl_hasProbe[ndmu] = true;
-               muonProbeTemp = &(dmuons->at(j));
-               dmu_dgl_probeID[ndmu] = j;
-               dmu_dgl_cosAlpha[ndmu] = cos(v_tag.Angle(v_probe));
-             } else {
-               const reco::Track *trackProbeTemp = (muonProbeTemp->combinedMuon()).get();
-               if (trackProbeCandidate->pt() > trackProbeTemp->pt()) {
-                 muonProbeTemp = &(dmuons->at(j));
-                 dmu_dgl_probeID[ndmu] = j;
-                 dmu_dgl_cosAlpha[ndmu] = cos(v_tag.Angle(v_probe));
-               } else {
-                 std::cout << ">> Probe candidate " << j << " has lower pt than " << dmu_dgl_probeID[ndmu] << std::endl;
-               }
-             }
-           }
-         }
-       }
      } else {
        dmu_dgl_pt[ndmu] = 0;
        dmu_dgl_eta[ndmu] = 0;
@@ -857,10 +540,6 @@ void ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        dmu_dgl_nValidMuonRPCHits[ndmu] = 0;
        dmu_dgl_nValidStripHits[ndmu] = 0;
        dmu_dgl_nhits[ndmu] = 0;
-       dmu_dgl_passTagID[ndmu] = false;
-       dmu_dgl_hasProbe[ndmu] = false;
-       dmu_dgl_probeID[ndmu] = 0;
-       dmu_dgl_cosAlpha[ndmu] = 0.;
      }    
 
      // Access the DSA track associated to the displacedMuon
@@ -897,16 +576,99 @@ void ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          }
          dmu_dsa_nsegments[ndmu] = nsegments;
        }
-       if (isData) {
-         // Fill tag and probe variables
-         //   First, reset the variables
-         dmu_dsa_passTagID[ndmu] = false;
-         dmu_dsa_hasProbe[ndmu] = false;
-         dmu_dsa_probeID[ndmu] = 0;
-         dmu_dsa_cosAlpha[ndmu] = 0.;
-         // Check if muon passes tag ID
-         dmu_dsa_passTagID[ndmu] = passTagID(outerTrack, "DSA");
-         if (!dmu_dsa_passTagID[ndmu]) {continue;}
+     } else {
+       dmu_dsa_pt[ndmu] = 0;
+       dmu_dsa_eta[ndmu] = 0;
+       dmu_dsa_phi[ndmu] = 0;
+       dmu_dsa_ptError[ndmu] = 0;
+       dmu_dsa_dxy[ndmu] = 0;
+       dmu_dsa_dz[ndmu] = 0;
+       dmu_dsa_normalizedChi2[ndmu] = 0;
+       dmu_dsa_charge[ndmu] = 0;
+       dmu_dsa_nMuonHits[ndmu] = 0;
+       dmu_dsa_nValidMuonHits[ndmu] = 0;
+       dmu_dsa_nValidMuonDTHits[ndmu] = 0;
+       dmu_dsa_nValidMuonCSCHits[ndmu] = 0;
+       dmu_dsa_nValidMuonRPCHits[ndmu] = 0;
+       dmu_dsa_nValidStripHits[ndmu] = 0;
+       dmu_dsa_nhits[ndmu] = 0;
+       dmu_dsa_dtStationsWithValidHits[ndmu] = 0;
+       dmu_dsa_cscStationsWithValidHits[ndmu] = 0;
+       dmu_dsa_nsegments[ndmu] = 0;
+     }
+
+     ndmu++;
+     //std::cout << "End muon" << std::endl;
+   }
+
+   // ----------------------------------
+   // Tag and probe code
+   // ----------------------------------
+   ndmu = 0;
+   for (unsigned int i = 0; i < dmuons->size(); i++) {
+     const reco::Muon& dmuon(dmuons->at(i));
+     // Access the DGL track associated to the displacedMuon
+     //std::cout << "isGlobalMuon: " << dmuon.isGlobalMuon() << std::endl;
+     if ( dmuon.isGlobalMuon() ) {
+       const reco::Track* globalTrack = (dmuon.combinedMuon()).get();
+       // Fill tag and probe variables
+       //   First, reset the variables
+       dmu_dgl_passTagID[ndmu] = false;
+       dmu_dgl_hasProbe[ndmu] = false;
+       dmu_dgl_probeID[ndmu] = 0;
+       dmu_dgl_cosAlpha[ndmu] = 0.;
+       // Check if muon passes tag ID
+       dmu_dgl_passTagID[ndmu] = passTagID(globalTrack, "DGL");
+       if (dmu_dgl_passTagID[ndmu]) {
+         // Search probe
+         TVector3 v_tag = TVector3();
+         v_tag.SetPtEtaPhi(globalTrack->pt(), globalTrack->eta(), globalTrack->phi());
+         const reco::Muon *muonProbeTemp = nullptr; // pointer for temporal probe (initialized to nullptr)
+         for (unsigned int j = 0; j < dmuons->size(); j++) { // Loop over the rest of the muons
+           if (i == j) {continue;}
+           const reco::Muon& muonProbeCandidate(dmuons->at(j));
+           if (!muonProbeCandidate.isGlobalMuon()) {continue;} // Get only dgls
+           const reco::Track *trackProbeCandidate = (muonProbeCandidate.combinedMuon()).get();
+           if (passProbeID(trackProbeCandidate, v_tag, "DGL")) { 
+             TVector3 v_probe = TVector3();
+             v_probe.SetPtEtaPhi(trackProbeCandidate->pt(), trackProbeCandidate->eta(), trackProbeCandidate->phi());
+             if (!dmu_dgl_hasProbe[ndmu]) {
+               dmu_dgl_hasProbe[ndmu] = true;
+               muonProbeTemp = &(dmuons->at(j));
+               dmu_dgl_probeID[ndmu] = j;
+               dmu_dgl_cosAlpha[ndmu] = cos(v_tag.Angle(v_probe));
+             } else {
+               const reco::Track *trackProbeTemp = (muonProbeTemp->combinedMuon()).get();
+               if (trackProbeCandidate->pt() > trackProbeTemp->pt()) {
+                 muonProbeTemp = &(dmuons->at(j));
+                 dmu_dgl_probeID[ndmu] = j;
+                 dmu_dgl_cosAlpha[ndmu] = cos(v_tag.Angle(v_probe));
+               } else {
+                 std::cout << ">> Probe candidate " << j << " has lower pt than " << dmu_dgl_probeID[ndmu] << std::endl;
+               }
+             }
+           }
+         }
+       }
+     } else {
+       dmu_dgl_passTagID[ndmu] = false;
+       dmu_dgl_hasProbe[ndmu] = false;
+       dmu_dgl_probeID[ndmu] = 0;
+       dmu_dgl_cosAlpha[ndmu] = 0.;
+     }
+     // Access the DSA track associated to the displacedMuon
+     //std::cout << "isStandAloneMuon: " << dmuon.isStandAloneMuon() << std::endl;
+     if ( dmuon.isStandAloneMuon() ) {
+       const reco::Track* outerTrack = (dmuon.standAloneMuon()).get();
+       // Fill tag and probe variables
+       //   First, reset the variables
+       dmu_dsa_passTagID[ndmu] = false;
+       dmu_dsa_hasProbe[ndmu] = false;
+       dmu_dsa_probeID[ndmu] = 0;
+       dmu_dsa_cosAlpha[ndmu] = 0.;
+       // Check if muon passes tag ID
+       dmu_dsa_passTagID[ndmu] = passTagID(outerTrack, "DSA");
+       if (dmu_dsa_passTagID[ndmu]) {
          // Search probe
          TVector3 v_tag = TVector3();
          v_tag.SetPtEtaPhi(outerTrack->pt(), outerTrack->eta(), outerTrack->phi());
@@ -938,188 +700,12 @@ void ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          }
        }
      } else {
-       dmu_dsa_pt[ndmu] = 0;
-       dmu_dsa_eta[ndmu] = 0;
-       dmu_dsa_phi[ndmu] = 0;
-       dmu_dsa_ptError[ndmu] = 0;
-       dmu_dsa_dxy[ndmu] = 0;
-       dmu_dsa_dz[ndmu] = 0;
-       dmu_dsa_normalizedChi2[ndmu] = 0;
-       dmu_dsa_charge[ndmu] = 0;
-       dmu_dsa_nMuonHits[ndmu] = 0;
-       dmu_dsa_nValidMuonHits[ndmu] = 0;
-       dmu_dsa_nValidMuonDTHits[ndmu] = 0;
-       dmu_dsa_nValidMuonCSCHits[ndmu] = 0;
-       dmu_dsa_nValidMuonRPCHits[ndmu] = 0;
-       dmu_dsa_nValidStripHits[ndmu] = 0;
-       dmu_dsa_nhits[ndmu] = 0;
-       dmu_dsa_dtStationsWithValidHits[ndmu] = 0;
-       dmu_dsa_cscStationsWithValidHits[ndmu] = 0;
-       dmu_dsa_nsegments[ndmu] = 0;
        dmu_dsa_passTagID[ndmu] = false;
        dmu_dsa_hasProbe[ndmu] = false;
        dmu_dsa_probeID[ndmu] = 0;
        dmu_dsa_cosAlpha[ndmu] = 0.;
      }
-
-     // Access the DTK track associated to the displacedMuon
-     //std::cout << "isTrackerMuon: " << dmuon.isTrackerMuon() << std::endl;
-     if ( dmuon.isTrackerMuon() ) {
-       const reco::Track* innerTrack = (dmuon.track()).get();
-       dmu_dtk_pt[ndmu] = innerTrack->pt();
-       dmu_dtk_eta[ndmu] = innerTrack->eta();
-       dmu_dtk_phi[ndmu] = innerTrack->phi();
-       dmu_dtk_ptError[ndmu] = innerTrack->ptError();
-       dmu_dtk_dxy[ndmu] = innerTrack->dxy();
-       dmu_dtk_dz[ndmu] = innerTrack->dz();
-       dmu_dtk_normalizedChi2[ndmu] = innerTrack->normalizedChi2();
-       dmu_dtk_charge[ndmu] = innerTrack->charge();
-       dmu_dtk_nMuonHits[ndmu] = innerTrack->hitPattern().numberOfMuonHits();
-       dmu_dtk_nValidMuonHits[ndmu] = innerTrack->hitPattern().numberOfValidMuonHits();
-       dmu_dtk_nValidMuonDTHits[ndmu] = innerTrack->hitPattern().numberOfValidMuonDTHits();
-       dmu_dtk_nValidMuonCSCHits[ndmu] = innerTrack->hitPattern().numberOfValidMuonCSCHits();
-       dmu_dtk_nValidMuonRPCHits[ndmu] = innerTrack->hitPattern().numberOfValidMuonRPCHits();
-       dmu_dtk_nValidStripHits[ndmu] = innerTrack->hitPattern().numberOfValidStripHits();
-       dmu_dtk_nhits[ndmu] = innerTrack->hitPattern().numberOfValidHits();
-     } else {
-       dmu_dtk_pt[ndmu] = 0;
-       dmu_dtk_eta[ndmu] = 0;
-       dmu_dtk_phi[ndmu] = 0;
-       dmu_dtk_ptError[ndmu] = 0;
-       dmu_dtk_dxy[ndmu] = 0;
-       dmu_dtk_dz[ndmu] = 0;
-       dmu_dtk_normalizedChi2[ndmu] = 0;
-       dmu_dtk_charge[ndmu] = 0;
-       dmu_dtk_nMuonHits[ndmu] = 0;
-       dmu_dtk_nValidMuonHits[ndmu] = 0;
-       dmu_dtk_nValidMuonDTHits[ndmu] = 0;
-       dmu_dtk_nValidMuonCSCHits[ndmu] = 0;
-       dmu_dtk_nValidMuonRPCHits[ndmu] = 0;
-       dmu_dtk_nValidStripHits[ndmu] = 0;
-       dmu_dtk_nhits[ndmu] = 0;
-     }
-
      ndmu++;
-     //std::cout << "End muon" << std::endl;
-   }
-
-   if (!isData) {
-     // ----------------------------------
-     // PrimaryVertices collection
-     // ----------------------------------
-     nTruePV = 0;
-     nPV = primaryvertices->size();
-
-     for (size_t i = 0; i < primaryvertices->size(); i ++){
-         const reco::Vertex &current_vertex = (*primaryvertices)[i];
-         if(current_vertex.isValid()){ nTruePV++; }
-     }
-
-     // The PV information:
-     const reco::Vertex &thePrimaryVertex = (*primaryvertices)[0];
-     
-     PV_vx = thePrimaryVertex.x();
-     PV_vy = thePrimaryVertex.y();
-     PV_vz = thePrimaryVertex.z();
-     PV_passAcceptance = false;
-     
-     if (!thePrimaryVertex.isFake() && thePrimaryVertex.ndof() > 4 && fabs(thePrimaryVertex.z()) < 25 && thePrimaryVertex.position().rho() <= 2) {
-        PV_passAcceptance = true;
-     }   
-     GlobalPoint _PVpoint(thePrimaryVertex.x(), thePrimaryVertex.y(), thePrimaryVertex.z());
-
-     // ----------------------------------
-     // GenParticle collection
-     // ----------------------------------
-     std::vector<int> iGM; // gen muons count
-
-     reco::GenParticleRef mref;
-     reco::GenParticle m;
-     // Get the muons that can be reconstructed
-     for (size_t i = 0; i < genParticles->size(); i++) {
-       const reco::GenParticle &genparticle = (*genParticles)[i];
-       if ( abs(genparticle.pdgId()) == 13 && genparticle.status() == 1) {
-         iGM.push_back(i);
-       }
-     }
-     nGenMuon = iGM.size();
-     //std::cout << "Number of gen muons = " << nGenMuon << std::endl;
-
-     for (size_t i = 0; i < iGM.size(); i++) {
-       const reco::GenParticle &genparticle = (*genParticles)[iGM.at(i)];
-         
-       GenLeptonSel_pt[i] = genparticle.pt();
-       GenLeptonSel_E[i] = genparticle.energy();
-       GenLeptonSel_et[i] = genparticle.et();
-       GenLeptonSel_eta[i] = genparticle.eta();
-       GenLeptonSel_phi[i] = genparticle.phi();
-       GenLeptonSel_pdgId[i] = genparticle.pdgId();
-
-       // Bottom-up to get the real decaying particle:
-       if (genparticle.mother()->pdgId() == genparticle.pdgId()) {
-         mref = genparticle.motherRef();
-         m = *mref;
-         while (m.pdgId() == m.mother()->pdgId()) {
-           mref = m.motherRef();
-           m = *mref;
-         }
-
-         GenLeptonSel_vx[i] = m.vx();
-         GenLeptonSel_vy[i] = m.vy();
-         GenLeptonSel_vz[i] = m.vz();
-         GenLeptonSel_dxy[i] = dxy_value(m, thePrimaryVertex); // should be computed here or before?
-
-         if (m.numberOfMothers() != 0) {
-           GenLeptonSel_motherPdgId[i] = m.motherRef()->pdgId();
-         } else {
-           GenLeptonSel_motherPdgId[i] = 0; 
-         }
-       } else {
-         GenLeptonSel_vx[i] = genparticle.vx();
-         GenLeptonSel_vy[i] = genparticle.vy();
-         GenLeptonSel_vz[i] = genparticle.vz();
-         GenLeptonSel_dxy[i] = dxy_value(genparticle, thePrimaryVertex); // should be computed here or before?
-
-         GenLeptonSel_motherPdgId[i] = genparticle.motherRef()->pdgId();
-       }
-            
-       // Flags
-       GenLeptonSel_isPromptFinalState[i] = genparticle.isPromptFinalState();
-       GenLeptonSel_fromHardProcessFinalState[i] = genparticle.fromHardProcessFinalState(); // has to be done with the last one
-       GenLeptonSel_isDirectPromptTauDecayProductFinalState[i] = genparticle.isDirectPromptTauDecayProductFinalState(); 
-       GenLeptonSel_isDirectHadronDecayProduct[i] = genparticle.statusFlags().isDirectHadronDecayProduct(); 
-     }
-         
-     // Counters initialization
-     nGenMuon_PFS = 0; 
-     nGenMuon_HPFS = 0; 
-     nGenMuon_PTDP = 0; 
-     nGenMuon_HDP = 0; 
-     for (size_t i = 0; i < iGM.size(); i++) {
-       if (GenLeptonSel_isPromptFinalState[i]) { nGenMuon_PFS++; }
-       if (GenLeptonSel_fromHardProcessFinalState[i]) { nGenMuon_HPFS++; }
-       if (GenLeptonSel_isDirectPromptTauDecayProductFinalState[i]) { nGenMuon_PTDP++; }
-       if (GenLeptonSel_isDirectHadronDecayProduct[i]) { nGenMuon_HDP++; }
-     }
-
-     // ----------------------------------
-     // Hard Process Collection
-     // ----------------------------------
-     nHardProcessParticle = 0;
-     for (size_t i = 0; i < genParticles->size(); i++) {
-       const reco::GenParticle &genparticle = (*genParticles)[i];
-       if (genparticle.isHardProcess()){
-         HardProcessParticle_pt[nHardProcessParticle] = genparticle.pt();
-         HardProcessParticle_E[nHardProcessParticle] = genparticle.energy();
-         HardProcessParticle_eta[nHardProcessParticle] = genparticle.eta();
-         HardProcessParticle_phi[nHardProcessParticle] = genparticle.phi();
-         HardProcessParticle_vx[nHardProcessParticle] = genparticle.vx();
-         HardProcessParticle_vy[nHardProcessParticle] = genparticle.vy();
-         HardProcessParticle_vz[nHardProcessParticle] = genparticle.vz();
-         HardProcessParticle_pdgId[nHardProcessParticle] = genparticle.pdgId();
-         nHardProcessParticle++;
-       }       
-     }
    }
 
    // Check if trigger fired:
@@ -1144,7 +730,6 @@ void ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    //-> Fill tree
    tree_out->Fill();
-
 
 }
 
