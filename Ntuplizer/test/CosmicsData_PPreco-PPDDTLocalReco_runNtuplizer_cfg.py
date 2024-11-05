@@ -20,12 +20,11 @@ process.options = cms.untracked.PSet(
 from Configuration.AlCa.GlobalTag import GlobalTag
 
 # Select number of events to be processed
-nEvents = 462173
+nEvents = -1
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(nEvents) )
 
 # Read events
-listOfFiles = ['/store/data/Run2023C/NoBPTX/MINIAOD/22Sep2023_v2-v1/50000/00f7e24b-cddd-484c-93d7-6434d6726085.root',
-               '/store/data/Run2023C/NoBPTX/MINIAOD/22Sep2023_v2-v1/50000/0107ed00-aa45-410b-9603-9dac4fd79bb2.root']
+listOfFiles = [f'/store/user/fernance/Cosmics/CosmicPPreco-PPDTLocalReco/240926_184317/0000/output_{i+1}.root' for i in range(547)]
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring( listOfFiles ),
@@ -37,6 +36,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, gTag)
 
 ## Define the process to run 
 ## 
-process.load("DisplacedMuons-FrameWork.Ntuplizer.CosmicsData_ntuples_MiniAOD_cfi")
+process.load("DisplacedMuons-FrameWork.Ntuplizer.CosmicsData_ntuples_AOD_cfi")
+process.ntuples.nameOfOutput = cms.string('file:/eos/user/r/rlopezru/Cosmics2024/CosmicsData_CosmicPPreco-PPDTLocalReco_Ntuples.root')
 
 process.p = cms.EndPath(process.ntuples)
