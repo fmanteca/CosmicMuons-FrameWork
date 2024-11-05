@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 ntuples = cms.EDAnalyzer('ntuplizer',
-    nameOfOutput = cms.string('Ntuples.root'),
-    isData                        = cms.bool(False),
+    nameOfOutput = cms.string('CosmicsData_Ntuples.root'),
+    isData                        = cms.bool(True),
     isAOD                         = cms.bool(False),
     EventInfo                     = cms.InputTag("generator"),
     RunInfo                       = cms.InputTag("generator"),
@@ -10,8 +10,6 @@ ntuples = cms.EDAnalyzer('ntuplizer',
     displacedGlobalCollection     = cms.InputTag("displacedGlobalMuons"),
     displacedStandAloneCollection = cms.InputTag("displacedStandAloneMuons"),
     displacedMuonCollection       = cms.InputTag("slimmedDisplacedMuons"),
-    genParticleCollection         = cms.InputTag("prunedGenParticles"),
-    PrimaryVertexCollection       = cms.InputTag("offlineSlimmedPrimaryVertices"),
 
     #prescales  = cms.InputTag("patTrigger"),
     bits       = cms.InputTag("TriggerResults","","HLT"),

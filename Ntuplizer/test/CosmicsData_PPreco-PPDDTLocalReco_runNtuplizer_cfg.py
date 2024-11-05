@@ -1,12 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import os
 
-#################################  CONSTANTS  #################################################
-ERA = 'C'
-ReReco = True
-###############################################################################################
-
-
 process = cms.Process("demo")
 process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
@@ -30,20 +24,19 @@ nEvents = -1
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(nEvents) )
 
 # Read events
-listOfFiles = ['']
+listOfFiles = [f'/store/user/fernance/Cosmics/CosmicPPreco-PPDTLocalReco/240926_184317/0000/output_{i+1}.root' for i in range(547)]
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring( listOfFiles ),
     secondaryFileNames = cms.untracked.vstring(),
     skipEvents = cms.untracked.uint32(0)
   )
-if ERA in 'ABCD' and not ReReco: gTag = '124X_dataRun3_PromptAnalysis_v1'
-if ERA in 'ABCDE' and ReReco:    gTag = '124X_dataRun3_v15'
-if ERA in 'FG' and not ReReco:   gTag = '124X_dataRun3_PromptAnalysis_v2'
+gTag = '130X_mcRun3_2023_realistic_v14'
 process.GlobalTag = GlobalTag(process.GlobalTag, gTag)
 
 ## Define the process to run 
 ## 
-process.load("DisplacedMuons-FrameWork.Ntuplizer.Cosmics_ntuples_MiniAOD_cfi")
+process.load("DisplacedMuons-FrameWork.Ntuplizer.CosmicsData_ntuples_AOD_cfi")
+process.ntuples.nameOfOutput = cms.string('file:/eos/user/r/rlopezru/Cosmics2024/CosmicsData_CosmicPPreco-PPDTLocalReco_Ntuples.root')
 
 process.p = cms.EndPath(process.ntuples)
