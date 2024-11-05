@@ -30,11 +30,7 @@ nEvents = -1
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(nEvents) )
 
 # Read events
-#listOfFiles = ['/store/data/Run2022C/NoBPTX/MINIAOD/27Jun2023-v1/2830000/02e0b6af-038c-4e7d-8e20-bc5408f27cf1.root']
-listOfFiles = ['/store/data/Run2022C/NoBPTX/MINIAOD/10Dec2022-v1/2560000/020fcaf1-3f7c-4172-88b2-a4f54d080e44.root',
-               '/store/data/Run2022C/NoBPTX/MINIAOD/10Dec2022-v1/2560000/02933a13-a55e-4b56-bb5f-ef0853b4fe12.root',
-               '/store/data/Run2022C/NoBPTX/MINIAOD/10Dec2022-v1/2560000/089c2044-2227-416d-b29f-59ffdb04df3a.root',
-               '/store/data/Run2022C/NoBPTX/MINIAOD/10Dec2022-v1/2560000/0944bae5-d493-4cef-8d44-6caad5589b73.root']
+listOfFiles = ['']
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring( listOfFiles ),

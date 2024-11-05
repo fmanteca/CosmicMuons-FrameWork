@@ -17,13 +17,15 @@ _vars = {
 }
 
 parser = ArgumentParser()
-parser.add_argument("--var", type=str, nargs='*', choices=_vars.keys())
+parser.add_argument("--var", type=str, nargs='*', choices=_vars.keys(), help='Variable(s) to plot')
+parser.add_argument("--mcfile",   type=str, help='MC Ntuple file', default="CosmicsMC_Leonardo_Ntuples.root")
+parser.add_argument("--datafile", type=str, help='Data Ntuple file', default="CosmicsData_Ntuples.root")
 args = parser.parse_args()
 
 if __name__=="__main__":
 
-    datafilename = "CosmicsData_Ntuples.root"
-    mcfilename   = "CosmicsMC_Leonardo_Ntuples.root"
+    datafilename = args.datafile
+    mcfilename   = args.mcfile
     datafile = R.TFile.Open(datafilename,"READ")
     datatree = datafile.Get("Events")
     mcfile   = R.TFile.Open(mcfilename,"READ")
