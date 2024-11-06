@@ -20,6 +20,7 @@ parser = ArgumentParser()
 parser.add_argument("--var", type=str, nargs='*', choices=_vars.keys(), help='Variable(s) to plot')
 parser.add_argument("--mcfile",   type=str, help='MC Ntuple file', default="CosmicsMC_Leonardo_Ntuples.root")
 parser.add_argument("--datafile", type=str, help='Data Ntuple file', default="CosmicsData_Ntuples.root")
+parser.add_argument("--tag", type=str, help='Tag to add in plots name', default="")
 args = parser.parse_args()
 
 if __name__=="__main__":
@@ -32,7 +33,7 @@ if __name__=="__main__":
     mctree   = mcfile.Get("Events")
 
     if len(args.var)==1: 
-        var = args.var
+        var = args.var[0]
 
         nbins = _vars[var]["nbins"]
         xmin  = _vars[var]["xmin"]
@@ -147,8 +148,10 @@ if __name__=="__main__":
         latex.SetTextSize(0.04);
         latex.DrawLatex(0.12, 0.94, "#bf{CMS} #it{Preliminary}")
         latex.DrawLatex(0.73, 0.94, "13.6 TeV")
+        latex.SetTextSize(0.03);
+        latex.DrawLatex(0.23, 0.44, datafilename.split('/')[-1])
 
-        plotname = f"ploteff_{var}"
+        plotname = f"ploteff_{var}_{args.tag}"
         c.SaveAs(f"{plotname}.png")
         c.SaveAs(f"{plotname}.pdf")
         c.SaveAs(f"{plotname}.C")
@@ -195,7 +198,7 @@ if __name__=="__main__":
         latex.SetTextFont(42);
         latex.SetTextAlign(11);
         latex.SetTextSize(0.03);
-        latex.DrawLatex(0.12, 0.9, "#bf{CMS} #it{Preliminary} (Cosmics Run2023C)")
+        latex.DrawLatex(0.12, 0.9, "#bf{CMS} #it{Preliminary}"+f" (Cosmics {datafilename.split('_')[1].split('-')[1]})")
         latex.DrawLatex(0.73, 0.9, "13.6 TeV")
         c.Update()
         c.cd(2)
@@ -210,7 +213,7 @@ if __name__=="__main__":
         latex.DrawLatex(0.12, 0.9, "#bf{CMS} #it{Simulation}")
         latex.DrawLatex(0.73, 0.9, "13.6 TeV")
         c.Update()
-        plotname = f"ploteff_{varx}_{vary}"
+        plotname = f"ploteff_{varx}_{vary}_{args.tag}"
         c.SaveAs(f"{plotname}.png")
         c.SaveAs(f"{plotname}.pdf")
         c.SaveAs(f"{plotname}.C")
