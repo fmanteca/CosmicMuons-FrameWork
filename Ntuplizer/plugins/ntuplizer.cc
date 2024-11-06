@@ -127,18 +127,6 @@ class ntuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
       // displacedMuons (reco::Muon // pat::Muon)
       edm::EDGetTokenT<edm::View<reco::Muon> > dmuToken;
       edm::Handle<edm::View<reco::Muon> > dmuons;
-    
-      // PrimaryVertices
-      edm::EDGetTokenT<edm::View<reco::Vertex> > thePrimaryVertexCollection;
-      edm::Handle<edm::View<reco::Vertex> > primaryvertices;
-      // GenParticles
-      edm::EDGetTokenT<edm::View<reco::GenParticle> >  theGenParticleCollection;
-      edm::Handle<edm::View<reco::GenParticle> > genParticles;
-
-      //
-      // --- Variables
-      //
-
 
       // Trigger tags
       std::vector<std::string> HLTPaths_;
@@ -224,50 +212,6 @@ class ntuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
       Int_t dmu_dtk_nValidStripHits[200] = {0};
       Int_t dmu_dtk_nhits[200] = {0};
 
-      // ----------------------------------
-      // PrimaryVertices
-      // ----------------------------------
-      Int_t nPV;
-      Int_t nTruePV;
-      Int_t PV_passAcceptance;
-      Float_t PV_vx;
-      Float_t PV_vy;
-      Float_t PV_vz;
-
-      // ----------------------------------
-      // GenParticles
-      // ----------------------------------
-      Int_t nGenMuon;
-      Int_t nGenMuon_PFS;
-      Int_t nGenMuon_HPFS;
-      Int_t nGenMuon_PTDP;
-      Int_t nGenMuon_HDP;
-      Float_t GenLeptonSel_pt[30];
-      Float_t GenLeptonSel_E[30];
-      Float_t GenLeptonSel_et[30];
-      Float_t GenLeptonSel_eta[30];
-      Float_t GenLeptonSel_phi[30];
-      Int_t GenLeptonSel_pdgId[30];
-      Float_t GenLeptonSel_dxy[30];
-      Float_t GenLeptonSel_vx[30];
-      Float_t GenLeptonSel_vy[30];
-      Float_t GenLeptonSel_vz[30];
-      Int_t GenLeptonSel_motherPdgId[30];
-      Int_t GenLeptonSel_fromHardProcessFinalState[30];
-      Int_t GenLeptonSel_isPromptFinalState[30];
-      Int_t GenLeptonSel_isDirectPromptTauDecayProductFinalState[30];
-      Int_t GenLeptonSel_isDirectHadronDecayProduct[30];
-      
-      Int_t nHardProcessParticle;
-      Float_t HardProcessParticle_pt[30];
-      Float_t HardProcessParticle_E[30];
-      Float_t HardProcessParticle_eta[30];
-      Float_t HardProcessParticle_phi[30];
-      Float_t HardProcessParticle_vx[30];
-      Float_t HardProcessParticle_vy[30];
-      Float_t HardProcessParticle_vz[30];
-      Int_t HardProcessParticle_pdgId[30];
-
       //
       // --- Output
       //
@@ -294,10 +238,6 @@ ntuplizer::ntuplizer(const edm::ParameterSet& iConfig) {
    dglToken = consumes<edm::View<reco::Track> >  (parameters.getParameter<edm::InputTag>("displacedGlobalCollection"));
    dsaToken = consumes<edm::View<reco::Track> >  (parameters.getParameter<edm::InputTag>("displacedStandAloneCollection"));
    dmuToken = consumes<edm::View<reco::Muon> >  (parameters.getParameter<edm::InputTag>("displacedMuonCollection"));
-   /**if (!isData) {
-     theGenParticleCollection = consumes<edm::View<reco::GenParticle> >  (parameters.getParameter<edm::InputTag>("genParticleCollection"));
-     thePrimaryVertexCollection = consumes<edm::View<reco::Vertex> >  (parameters.getParameter<edm::InputTag>("PrimaryVertexCollection"));
-   }**/
 
    triggerBits_ = consumes<edm::TriggerResults> (parameters.getParameter<edm::InputTag>("bits"));
 }
@@ -383,64 +323,6 @@ void ntuplizer::beginJob() {
    tree_out->Branch("dmu_dgl_hasProbe", dmu_dgl_hasProbe, "dmu_dgl_hasProbe[ndmu]/O");
    tree_out->Branch("dmu_dgl_probeID", dmu_dgl_probeID, "dmu_dgl_probeID[ndmu]/I");
    tree_out->Branch("dmu_dgl_cosAlpha", dmu_dgl_cosAlpha, "dmu_dgl_cosAlpha[ndmu]/F");
-   // dmu_dtk
-   /**tree_out->Branch("dmu_dtk_pt", dmu_dtk_pt, "dmu_dtk_pt[ndmu]/F");
-   tree_out->Branch("dmu_dtk_eta", dmu_dtk_eta, "dmu_dtk_eta[ndmu]/F");
-   tree_out->Branch("dmu_dtk_phi", dmu_dtk_phi, "dmu_dtk_phi[ndmu]/F");
-   tree_out->Branch("dmu_dtk_ptError", dmu_dtk_ptError, "dmu_dtk_ptError[ndmu]/F");
-   tree_out->Branch("dmu_dtk_dxy", dmu_dtk_dxy, "dmu_dtk_dxy[ndmu]/F");
-   tree_out->Branch("dmu_dtk_dz", dmu_dtk_dz, "dmu_dtk_dz[ndmu]/F");
-   tree_out->Branch("dmu_dtk_normalizedChi2", dmu_dtk_normalizedChi2, "dmu_dtk_normalizedChi2[ndmu]/F");
-   tree_out->Branch("dmu_dtk_charge", dmu_dtk_charge, "dmu_dtk_charge[ndmu]/F");
-   tree_out->Branch("dmu_dtk_nMuonHits", dmu_dtk_nMuonHits, "dmu_dtk_nMuonHits[ndmu]/I");
-   tree_out->Branch("dmu_dtk_nValidMuonHits", dmu_dtk_nValidMuonHits, "dmu_dtk_nValidMuonHits[ndmu]/I");
-   tree_out->Branch("dmu_dtk_nValidMuonDTHits", dmu_dtk_nValidMuonDTHits, "dmu_dtk_nValidMuonDTHits[ndmu]/I");
-   tree_out->Branch("dmu_dtk_nValidMuonCSCHits", dmu_dtk_nValidMuonCSCHits, "dmu_dtk_nValidMuonCSCHits[ndmu]/I");
-   tree_out->Branch("dmu_dtk_nValidMuonRPCHits", dmu_dtk_nValidMuonRPCHits, "dmu_dtk_nValidMuonRPCHits[ndmu]/I");
-   tree_out->Branch("dmu_dtk_nValidStripHits", dmu_dtk_nValidStripHits, "dmu_dtk_nValidStripHits[ndmu]/I");
-   tree_out->Branch("dmu_dtk_nhits", dmu_dtk_nhits, "dmu_dtk_nhits[ndmu]/I");**/
-
-   /**if (!isData) {
-     // ----------------------------------
-     // PrimaryVertices
-     // ----------------------------------
-     tree_out->Branch("nPV", &nPV, "nPV/I");
-     tree_out->Branch("nTruePV", &nTruePV, "nTruePV/I");
-     tree_out->Branch("PV_passAcceptance", &PV_passAcceptance, "PV_passAcceptance/I");
-     tree_out->Branch("PV_vx", &PV_vx, "PV_vx/F");
-     tree_out->Branch("PV_vy", &PV_vy, "PV_vy/F");
-     tree_out->Branch("PV_vz", &PV_vz, "PV_vz/F");   
-
-     // ----------------------------------
-     // GenParticles
-     // ----------------------------------
-     tree_out->Branch("nGenMuon", &nGenMuon, "nGenMuon/I");
-     tree_out->Branch("GenLeptonSel_pt", GenLeptonSel_pt, "GenLeptonSel_pt[nGenMuon]/F");
-     tree_out->Branch("GenLeptonSel_E", GenLeptonSel_E, "GenLeptonSel_E[nGenMuon]/F");
-     tree_out->Branch("GenLeptonSel_et", GenLeptonSel_et, "GenLeptonSel_et[nGenMuon]/F");
-     tree_out->Branch("GenLeptonSel_eta", GenLeptonSel_eta, "GenLeptonSel_eta[nGenMuon]/F");
-     tree_out->Branch("GenLeptonSel_phi", GenLeptonSel_phi, "GenLeptonSel_phi[nGenMuon]/F");
-     tree_out->Branch("GenLeptonSel_dxy", GenLeptonSel_dxy, "GenLeptonSel_dxy[nGenMuon]/F");
-     tree_out->Branch("GenLeptonSel_vx", GenLeptonSel_vx, "GenLeptonSel_vx[nGenMuon]/F");
-     tree_out->Branch("GenLeptonSel_vy", GenLeptonSel_vy, "GenLeptonSel_vy[nGenMuon]/F");
-     tree_out->Branch("GenLeptonSel_vz", GenLeptonSel_vz, "GenLeptonSel_vz[nGenMuon]/F");
-     tree_out->Branch("GenLeptonSel_pdgId", GenLeptonSel_pdgId, "GenLeptonSel_pdgId[nGenMuon]/I");
-     tree_out->Branch("GenLeptonSel_motherPdgId", GenLeptonSel_motherPdgId, "GenLeptonSel_motherPdgId[nGenMuon]/I");
-     tree_out->Branch("GenLeptonSel_isPromptFinalState", GenLeptonSel_isPromptFinalState, "GenLeptonSel_isPromptFinalState[nGenMuon]/I");
-     tree_out->Branch("GenLeptonSel_fromHardProcessFinalState", GenLeptonSel_fromHardProcessFinalState, "GenLeptonSel_fromHardProcessFinalState[nGenMuon]/I");
-     tree_out->Branch("GenLeptonSel_isDirectPromptTauDecayProductFinalState", GenLeptonSel_isDirectPromptTauDecayProductFinalState, "GenLeptonSel_isDirectPromptTauDecayProductFinalState[nGenMuon]/I");
-     tree_out->Branch("GenLeptonSel_isDirectHadronDecayProduct", GenLeptonSel_isDirectHadronDecayProduct, "GenLeptonSel_isDirectHadronDecayProduct[nGenMuon]/I");
- 
-     tree_out->Branch("nHardProcessParticle", &nHardProcessParticle, "nHardProcessParticle/I");
-     tree_out->Branch("HardProcessParticle_E", HardProcessParticle_E, "HardProcessParticle_E[nHardProcessParticle]/F");
-     tree_out->Branch("HardProcessParticle_pt", HardProcessParticle_pt, "HardProcessParticle_pt[nHardProcessParticle]/F");
-     tree_out->Branch("HardProcessParticle_eta", HardProcessParticle_eta, "HardProcessParticle_eta[nHardProcessParticle]/F");
-     tree_out->Branch("HardProcessParticle_phi", HardProcessParticle_phi, "HardProcessParticle_phi[nHardProcessParticle]/F");
-     tree_out->Branch("HardProcessParticle_vx", HardProcessParticle_vx, "HardProcessParticle_vx[nHardProcessParticle]/F");
-     tree_out->Branch("HardProcessParticle_vy", HardProcessParticle_vy, "HardProcessParticle_vy[nHardProcessParticle]/F");
-     tree_out->Branch("HardProcessParticle_vz", HardProcessParticle_vz, "HardProcessParticle_vz[nHardProcessParticle]/F");
-     tree_out->Branch("HardProcessParticle_pdgId", HardProcessParticle_pdgId, "HardProcessParticle_pdgId[nHardProcessParticle]/I");
-   }**/
 
    // Trigger branches
    for (unsigned int ihlt = 0; ihlt < HLTPaths_.size(); ihlt++) {
