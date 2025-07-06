@@ -1,48 +1,32 @@
-# Displaced Muons Framework
+# Cosmics Muons Ntupler
 
-¿Quieres ver lo que está desplazado?
+## Instructions for installing 
 
-## Instructions for installing and producing Cosmic Data/MC plots
 ### Installing
-I recommend using `CMSSW_13_2_0`, but any later release should also work.
-For installing the code, follow these instructions:
 
-    cmsrel CMSSW_13_2_0
-    cd CMSSW_13_2_0/src
+    cmsrel CMSSW_15_0_5
+    cd CMSSW_15_0_5/src
     cmsenv
     git clone git@github.com:24LopezR/DisplacedMuons-FrameWork.git
-    scram b -j8
-Note that for computing the efficiencies and producing the plots we will use only the "Ntuplizer" package. The other two ("Analyzer" and "MiniAOD_prod") can be ignored / deleted.
+    scram b -j 8
+
 ### Producing Ntuples
-To produce the Ntuples, one can start from AOD or MiniAOD. Depending if you are running on AOD/MiniAOD and Data/MC, you have to change the configuration of the ntuplizer. The four combinations are in `DisplacedMuons-FrameWork/Ntuplizer/python`
-Then to run the ntuplizer you have to `cmsRun` any of the scripts you find in `DisplacedMuons-FrameWork/Ntuplizer/test` .
-An example is summarized in these instructions:
+The framework will produce Ntuples from AOD. Everytime you make a change anywhere, for instance in 'plugins/MuonNtupleProducer.cc', do not forget to re-compile (run 'scram b -j 8' in 'CMSSW_15_0_5/src').
 
-    cd DisplacedMuons-FrameWork/Ntuplizer/test
+    cd CosmicMuons-FrameWork/Ntuplizer/test/
+        
+    # Find an input AOD file and use it on process.source in 'Cosmics_runNtuplizer_AOD_cfg.py':
+    # Use DAS to get the paths: https://cmsweb.cern.ch/das/request?view=list&limit=50&instance=prod%2Fglobal&input=dataset%3D%2F*Cosmics*%2FRun*2025*%2FAOD
+    # One can either give the path of any of them, i.e., fileNames = cms.untracked.vstring('/store/data/Run2025A/Cosmics/AOD/PromptReco-v1/000/390/735/00000/004edc0a-7cb1-46e1-af6c-5f24246a0418.root')
+    # or copy it in local 'xrdcp root://cms-xrd-global.cern.ch//store/data/Run2025A/Cosmics/AOD/PromptReco-v1/000/390/735/00000/004edc0a-7cb1-46e1-af6c-5f24246a0418.root ./'
+    # and then point to it: 'fileNames = cms.untracked.vstring('file:004edc0a-7cb1-46e1-af6c-5f24246a0418.root')'. The latter option should be faster for testing porpuses.
     
-    # Check listOfFiles in 'CosmicsMC_MiniAOD_runNtuplizer_cfg.py':
-    #     listOfFiles = ['']
-    # Check configuration in 'CosmicsMC_MiniAOD_runNtuplizer_cfg.py':
-    #     process.load("DisplacedMuons-FrameWork.Ntuplizer.CosmicsMC_ntuples_MiniAOD_cfi")
-    
-    cmsRun CosmicsMC_MiniAOD_runNtuplizer_cfg.py &> log_CosmicsMC_MiniAOD.log
-### Plotting efficiencies
-For all the plots I use the script `plot_efficiencies.py`.
-Usage:
+    cmsRun Cosmics_runNtuplizer_AOD_cfg.py
 
-        usage: plot_efficiencies.py [-h]
-                                [--var [{dmu_dsa_dxy,dmu_dsa_pt,dmu_dsa_eta,dmu_dgl_dxy,dmu_dgl_dz} [{dmu_dsa_dxy,dmu_dsa_pt,dmu_dsa_eta,dmu_dgl_dxy,dmu_dgl_dz} ...]]]
-                                [--mcfile MCFILE] [--datafile DATAFILE]
-    
-    optional arguments:
-      -h, --help            show this help message and exit
-      --var [{dmu_dsa_dxy,dmu_dsa_pt,dmu_dsa_eta,dmu_dgl_dxy,dmu_dgl_dz} [{dmu_dsa_dxy,dmu_dsa_pt,dmu_dsa_eta,dmu_dgl_dxy,dmu_dgl_dz} ...]]
-                            Variable(s) to plot
-      --mcfile MCFILE       MC Ntuple file
-      --datafile DATAFILE   Data Ntuple file
-The options I used are:
+### Submit jobs to crab
+The following instructions will allow to submit jobs to the cluster for an entire dataset like '/Cosmics/Run2025A-PromptReco-v1/AOD'. The output ntuples will be stored in your '/eos/user/' area.
 
-    python3 plot_efficiencies.py --var dmu_dsa_dxy
-    python3 plot_efficiencies.py --var dmu_dsa_eta
-    python3 plot_efficiencies.py --var dmu_dsa_pt
-    python3 plot_efficiencies.py --var dmu_dgl_dxy dmu_dgl_dz
+    source /cvmfs/cms.cern.ch/crab3/crab.sh
+    cmsenv
+    voms-proxy-init --voms cms --valid 168:00
+    crab submit crab_CosmicsData_AOD.py
