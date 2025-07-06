@@ -7,7 +7,7 @@
     cmsrel CMSSW_15_0_5
     cd CMSSW_15_0_5/src
     cmsenv
-    git clone git@github.com:24LopezR/DisplacedMuons-FrameWork.git
+    git clone git@github.com:fmanteca/CosmicMuons-FrameWork.git
     scram b -j 8
 
 ### Producing Ntuples
@@ -29,4 +29,4 @@ The following instructions will allow to submit jobs to the cluster for an entir
     source /cvmfs/cms.cern.ch/crab3/crab.sh
     cmsenv
     voms-proxy-init --voms cms --valid 168:00
-    crab submit crab_CosmicsData_AOD.py
+    crab submit crab_CosmicsData_2025A_AOD.py
