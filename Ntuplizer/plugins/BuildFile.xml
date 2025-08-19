@@ -1,11 +1,13 @@
-<use name="CommonTools/UtilAlgos"/>
-<use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
+<use name="FWCore/ServiceRegistry"/>
 <use name="DataFormats/MuonReco"/>
 <use name="DataFormats/TrackReco"/>
-<use name="root"/>
+<use name="RecoMuon/TrackingTools"/>
+<use name="TrackingTools/Records"/>
+<use name="MagneticField/Engine"/>
+<use name="MagneticField/Records"/>
 <export>
   <lib name="1"/>
 </export>
