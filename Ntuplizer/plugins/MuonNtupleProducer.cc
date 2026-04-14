@@ -42,7 +42,6 @@ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   edm::EDGetTokenT<std::vector<reco::Muon>> muonsToken_;
-  edm::EDGetTokenT<std::vector<reco::Track>> cosmicMuonsToken_;
   edm::EDGetTokenT<DTRecSegment4DCollection> dtSegmentsToken_;
   edm::EDGetTokenT<CSCSegmentCollection> cscSegmentsToken_;
   edm::EDGetTokenT<edm::TriggerResults> hltResultsToken_;
@@ -69,11 +68,6 @@ private:
   float muonDxy_[MAX], muonDz_[MAX];
   int muonSegmentsDT_[MAX], muonSegmentsCSC_[MAX], muonSegmentsRPC_[MAX];
   
-  // Cosmic track variables
-  int nCosmics_;
-  float cosmicPt_[MAX], cosmicEta_[MAX], cosmicPhi_[MAX];
-  int cosmicCharge_[MAX], cosmicValidHits_[MAX];
-
   // Segments
   int   nSeg_;
   int Seg_isDT_[MAX], Seg_isCSC_[MAX], Seg_DTstation_[MAX], Seg_CSCstation_[MAX], Seg_ndof_[MAX];
@@ -86,7 +80,6 @@ private:
 MuonNtupleProducer::MuonNtupleProducer(const edm::ParameterSet& iConfig) {
   usesResource("TFileService");
   muonsToken_ = consumes<std::vector<reco::Muon>>(iConfig.getParameter<edm::InputTag>("muons"));
-  cosmicMuonsToken_ = consumes<std::vector<reco::Track>>(iConfig.getParameter<edm::InputTag>("cosmicMuons"));
   dtSegmentsToken_ = consumes<DTRecSegment4DCollection>(iConfig.getParameter<edm::InputTag>("segmentsDt"));
   cscSegmentsToken_ = consumes<CSCSegmentCollection>(iConfig.getParameter<edm::InputTag>("segmentsCSC"));
   magneticFieldToken_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
@@ -127,13 +120,6 @@ void MuonNtupleProducer::beginJob() {
   tree_->Branch("muonSegmentsCSC", muonSegmentsCSC_, "muonSegmentsCSC[nMuons]/I");
   tree_->Branch("muonSegmentsRPC", muonSegmentsRPC_, "muonSegmentsRPC[nMuons]/I");
 
-  tree_->Branch("nCosmics", &nCosmics_, "nCosmics/I");
-  tree_->Branch("cosmicPt", cosmicPt_, "cosmicPt[nCosmics]/F");
-  tree_->Branch("cosmicEta", cosmicEta_, "cosmicEta[nCosmics]/F");
-  tree_->Branch("cosmicPhi", cosmicPhi_, "cosmicPhi[nCosmics]/F");
-  tree_->Branch("cosmicCharge", cosmicCharge_, "cosmicCharge[nCosmics]/I");
-  tree_->Branch("cosmicValidHits", cosmicValidHits_, "cosmicValidHits[nCosmics]/I");
-
   tree_->Branch("nSeg", &nSeg_, "nSeg/I");
   tree_->Branch("Seg_isDT", Seg_isDT_, "Seg_isDT[nSeg]/I");
   tree_->Branch("Seg_DTstation", Seg_DTstation_, "Seg_DTstation[nSeg]/I");
@@ -165,7 +151,6 @@ void MuonNtupleProducer::analyze(const edm::Event& iEvent, const edm::EventSetup
   }
   
   nMuons_ = 0;
-  nCosmics_ = 0;
   nSeg_ = 0;
 
   edm::Handle<std::vector<reco::Muon>> muons;
@@ -201,18 +186,6 @@ void MuonNtupleProducer::analyze(const edm::Event& iEvent, const edm::EventSetup
       else if (match.detector() == MuonSubdetId::RPC) ++muonSegmentsRPC_[nMuons_];
     }
     ++nMuons_;
-  }
-
-  edm::Handle<std::vector<reco::Track>> cosmics;
-  iEvent.getByToken(cosmicMuonsToken_, cosmics);
-  for (const auto& trk : *cosmics) {
-    if (nCosmics_ >= MAX) break;
-    cosmicPt_[nCosmics_] = trk.pt();
-    cosmicEta_[nCosmics_] = trk.eta();
-    cosmicPhi_[nCosmics_] = trk.phi();
-    cosmicCharge_[nCosmics_] = trk.charge();
-    cosmicValidHits_[nCosmics_] = trk.numberOfValidHits();
-    ++nCosmics_;
   }
 
 
