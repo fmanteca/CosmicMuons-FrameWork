@@ -11,15 +11,15 @@
     scram b -j 8
 
 ### Producing Ntuples
-The framework will produce Ntuples from AOD. Everytime you make a change anywhere, for instance in 'plugins/MuonNtupleProducer.cc', do not forget to re-compile (run 'scram b -j 8' in 'CMSSW_15_0_5/src').
+The framework will produce Ntuples from AOD. Every time you make a change anywhere, for instance in 'plugins/MuonNtupleProducer.cc', do not forget to re-compile (run 'scram b -j 8' in 'CMSSW_15_0_5/src').
 
     cd CosmicMuons-FrameWork/Ntuplizer/test/
         
     # Find an input AOD file and use it on process.source in 'Cosmics_runNtuplizer_AOD_cfg.py':
-    # Use DAS to get the paths: [https://cmsweb.cern.ch/das/request?view=list&limit=50&instance=prod%2Fglobal&input=dataset%3D%2F*Cosmics*%2FRun*2025*%2FAOD](https://cmsweb.cern.ch/das/request?view=list&limit=50&instance=prod%2Fglobal&input=dataset%3D%2FCosmics%2FCommissioning2025-PromptReco-v1%2FAOD)
+    # Use DAS to get the paths: https://cmsweb.cern.ch/das/request?view=list&limit=50&instance=prod%2Fglobal&input=dataset%3D%2F*Cosmics*%2FRun*2025*%2FAOD
     # One can either give the path of any of them, i.e., fileNames = cms.untracked.vstring('/store/data/Commissioning2025/Cosmics/AOD/PromptReco-v1/000/389/353/00000/896a0637-7186-4d8e-8af5-b11e22c90ea4.root')
     # or copy it in local 'xrdcp root://cms-xrd-global.cern.ch//store/data/Commissioning2025/Cosmics/AOD/PromptReco-v1/000/389/353/00000/896a0637-7186-4d8e-8af5-b11e22c90ea4.root ./'
-    # and then point to it: 'fileNames = cms.untracked.vstring('file:896a0637-7186-4d8e-8af5-b11e22c90ea4.root')'. The latter option should be faster for testing porpuses.
+    # and then point to it: 'fileNames = cms.untracked.vstring('file:896a0637-7186-4d8e-8af5-b11e22c90ea4.root')'. The latter option should be faster for testing purposes.
     
     cmsRun Cosmics_runNtuplizer_AOD_cfg.py
 
