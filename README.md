@@ -30,3 +30,11 @@ The following instructions will allow to submit jobs to the cluster for an entir
     cmsenv
     voms-proxy-init --voms cms --valid 168:00
     crab submit crab_Commissioning2025.py
+
+### Useful links:
+* Muon reconstruction documentation: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideMuons
+* Cosmic muon reconstruction documentation: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideCosmicMuonReco
+* reco::Muon class: https://github.com/cms-sw/cmssw/blob/master/DataFormats/MuonReco/interface/Muon.h
+* Muon POG selections & definitions: https://github.com/cms-sw/cmssw/blob/master/DataFormats/MuonReco/src/MuonSelectors.cc
+* OMS (used to get run numbers from CRUZET/CRAFT): https://cmsoms.cern.ch/cms/run_3_cruz/cruzet_2025?cms_run_sequence=GLOBAL-RUN
+* Get the datasets containing a given run number in DAS: https://cmsweb.cern.ch/das/request?view=list&limit=50&instance=prod%2Fglobal&input=dataset+run%3D389767
