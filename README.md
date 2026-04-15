@@ -39,9 +39,9 @@ The following instructions will allow to submit jobs to the cluster for an entir
 * OMS (used to get run numbers from CRUZET/CRAFT): https://cmsoms.cern.ch/cms/run_3_cruz/cruzet_2025?cms_run_sequence=GLOBAL-RUN
 * Get the datasets containing a given run number in DAS: https://cmsweb.cern.ch/das/request?view=list&limit=50&instance=prod%2Fglobal&input=dataset+run%3D389767
 
-# Event displays with Fireworks (accept miniAOD/AOD/RECO formats as input)
+### Event displays with Fireworks (accept miniAOD/AOD/RECO formats as input)
 
-Use edmPickEvents.py to filter out events if needed.
+Use edmPickEvents.py to filter out events if needed (see https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookPickEvents).
 
 Copy the output to a public /eos/cms/group/ path.
 
