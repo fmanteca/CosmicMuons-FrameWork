@@ -31,7 +31,6 @@
 #include "TTree.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
-
 // reco::Muon class: https://github.com/cms-sw/cmssw/blob/master/DataFormats/MuonReco/interface/Muon.h
 // Muon POG selections & definitions: https://github.com/cms-sw/cmssw/blob/master/DataFormats/MuonReco/src/MuonSelectors.cc
 
@@ -50,7 +49,6 @@ private:
   edm::EDGetTokenT<std::vector<reco::Muon>> muonsToken_;
   //edm::EDGetTokenT<DTRecSegment4DCollection> dtSegmentsToken_;
   //edm::EDGetTokenT<CSCSegmentCollection> cscSegmentsToken_;
-  edm::EDGetTokenT<edm::TriggerResults> hltResultsToken_;
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
   edm::ParameterSet parameters;
   MuonServiceProxy *theService;
@@ -151,13 +149,13 @@ void MuonNtupleProducer::beginJob() {
 }
 
 void MuonNtupleProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
+
+  // Get the event information
   run_ = iEvent.id().run();
   lumi_ = iEvent.luminosityBlock();
   event_ = iEvent.id().event();
   theService->update(iSetup);
   magnetOn_ = 0; //by default assume magnet off
-
-
 
   try {
     const MagneticField& magneticField = iSetup.getData(magneticFieldToken_);
@@ -176,7 +174,8 @@ void MuonNtupleProducer::analyze(const edm::Event& iEvent, const edm::EventSetup
   // iEvent.getByToken(dtSegmentsToken_, dtSegments);
   // edm::Handle<CSCSegmentCollection> cscSegments;
   // iEvent.getByToken(cscSegmentsToken_, cscSegments);
-  
+
+  // Get muon information
   for (const auto& mu : *muons) {
     if (nMuons_ >= MAX) break;
     muonPt_[nMuons_] = mu.pt();
