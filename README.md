@@ -43,9 +43,9 @@ The following instructions will allow to submit jobs to the cluster for an entir
 
 Use edmPickEvents.py to filter out events if needed (see https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookPickEvents).
 
-Copy the output to a public /eos/cms/group/ path.
+Copy the output to a public /eos/cms/store/group/ path.
 
-Use that path here: https://fireworks.cern.ch/cmsShowWeb/revetor.pl
+Insert path here: https://fireworks.cern.ch/cmsShowWeb/revetor.pl (starting with /store/)
 
 Instructions for cosmic multi-muons:
 * Add Collections -> type "leg" -> select "Muons muon1Leg"
