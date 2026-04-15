@@ -28,6 +28,7 @@
 #include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
 #include "RecoMuon/GlobalTrackingTools/interface/StateSegmentMatcher.h"
 #include "TTree.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 class MuonServiceProxy;
 
@@ -42,8 +43,8 @@ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   edm::EDGetTokenT<std::vector<reco::Muon>> muonsToken_;
-  edm::EDGetTokenT<DTRecSegment4DCollection> dtSegmentsToken_;
-  edm::EDGetTokenT<CSCSegmentCollection> cscSegmentsToken_;
+  //edm::EDGetTokenT<DTRecSegment4DCollection> dtSegmentsToken_;
+  //edm::EDGetTokenT<CSCSegmentCollection> cscSegmentsToken_;
   edm::EDGetTokenT<edm::TriggerResults> hltResultsToken_;
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
   edm::ParameterSet parameters;
@@ -69,19 +70,19 @@ private:
   int muonSegmentsDT_[MAX], muonSegmentsCSC_[MAX], muonSegmentsRPC_[MAX];
   
   // Segments
-  int   nSeg_;
-  int Seg_isDT_[MAX], Seg_isCSC_[MAX], Seg_DTstation_[MAX], Seg_CSCstation_[MAX], Seg_ndof_[MAX];
-  float Seg_x_[MAX], Seg_y_[MAX], Seg_z_[MAX];
-  float Seg_dirx_[MAX], Seg_diry_[MAX], Seg_dirz_[MAX];
-  float Seg_chi2_[MAX];
+  // int   nSeg_;
+  // int Seg_isDT_[MAX], Seg_isCSC_[MAX], Seg_DTstation_[MAX], Seg_CSCstation_[MAX], Seg_ndof_[MAX];
+  // float Seg_x_[MAX], Seg_y_[MAX], Seg_z_[MAX];
+  // float Seg_dirx_[MAX], Seg_diry_[MAX], Seg_dirz_[MAX];
+  // float Seg_chi2_[MAX];
 
 };
 
 MuonNtupleProducer::MuonNtupleProducer(const edm::ParameterSet& iConfig) {
   usesResource("TFileService");
   muonsToken_ = consumes<std::vector<reco::Muon>>(iConfig.getParameter<edm::InputTag>("muons"));
-  dtSegmentsToken_ = consumes<DTRecSegment4DCollection>(iConfig.getParameter<edm::InputTag>("segmentsDt"));
-  cscSegmentsToken_ = consumes<CSCSegmentCollection>(iConfig.getParameter<edm::InputTag>("segmentsCSC"));
+  //dtSegmentsToken_ = consumes<DTRecSegment4DCollection>(iConfig.getParameter<edm::InputTag>("segmentsDt"));
+  //cscSegmentsToken_ = consumes<CSCSegmentCollection>(iConfig.getParameter<edm::InputTag>("segmentsCSC"));
   magneticFieldToken_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
   parameters = iConfig;
   edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
@@ -120,19 +121,19 @@ void MuonNtupleProducer::beginJob() {
   tree_->Branch("muonSegmentsCSC", muonSegmentsCSC_, "muonSegmentsCSC[nMuons]/I");
   tree_->Branch("muonSegmentsRPC", muonSegmentsRPC_, "muonSegmentsRPC[nMuons]/I");
 
-  tree_->Branch("nSeg", &nSeg_, "nSeg/I");
-  tree_->Branch("Seg_isDT", Seg_isDT_, "Seg_isDT[nSeg]/I");
-  tree_->Branch("Seg_DTstation", Seg_DTstation_, "Seg_DTstation[nSeg]/I");
-  tree_->Branch("Seg_isCSC", Seg_isCSC_, "Seg_isCSC[nSeg]/I");
-  tree_->Branch("Seg_CSCstation", Seg_CSCstation_, "Seg_CSCstation[nSeg]/I");
-  tree_->Branch("Seg_ndof", Seg_ndof_, "Seg_ndof[nSeg]/I");
-  tree_->Branch("Seg_x", Seg_x_, "Seg_x[nSeg]/F");
-  tree_->Branch("Seg_y", Seg_y_, "Seg_y[nSeg]/F");
-  tree_->Branch("Seg_z", Seg_z_, "Seg_z[nSeg]/F");
-  tree_->Branch("Seg_dirx", Seg_dirx_, "Seg_dirx[nSeg]/F");
-  tree_->Branch("Seg_diry", Seg_diry_, "Seg_diry[nSeg]/F");
-  tree_->Branch("Seg_dirz", Seg_dirz_, "Seg_dirz[nSeg]/F");
-  tree_->Branch("Seg_chi2", Seg_chi2_, "Seg_chi2[nSeg]/F");
+  // tree_->Branch("nSeg", &nSeg_, "nSeg/I");
+  // tree_->Branch("Seg_isDT", Seg_isDT_, "Seg_isDT[nSeg]/I");
+  // tree_->Branch("Seg_DTstation", Seg_DTstation_, "Seg_DTstation[nSeg]/I");
+  // tree_->Branch("Seg_isCSC", Seg_isCSC_, "Seg_isCSC[nSeg]/I");
+  // tree_->Branch("Seg_CSCstation", Seg_CSCstation_, "Seg_CSCstation[nSeg]/I");
+  // tree_->Branch("Seg_ndof", Seg_ndof_, "Seg_ndof[nSeg]/I");
+  // tree_->Branch("Seg_x", Seg_x_, "Seg_x[nSeg]/F");
+  // tree_->Branch("Seg_y", Seg_y_, "Seg_y[nSeg]/F");
+  // tree_->Branch("Seg_z", Seg_z_, "Seg_z[nSeg]/F");
+  // tree_->Branch("Seg_dirx", Seg_dirx_, "Seg_dirx[nSeg]/F");
+  // tree_->Branch("Seg_diry", Seg_diry_, "Seg_diry[nSeg]/F");
+  // tree_->Branch("Seg_dirz", Seg_dirz_, "Seg_dirz[nSeg]/F");
+  // tree_->Branch("Seg_chi2", Seg_chi2_, "Seg_chi2[nSeg]/F");
 }
 
 void MuonNtupleProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
@@ -141,24 +142,26 @@ void MuonNtupleProducer::analyze(const edm::Event& iEvent, const edm::EventSetup
   event_ = iEvent.id().event();
   theService->update(iSetup);
   magnetOn_ = 0; //by default assume magnet off
-  
+
+
+
   try {
     const MagneticField& magneticField = iSetup.getData(magneticFieldToken_);
-    float bField = magneticField.nominalValue();
-    magnetOn_ = (bField > 0.1) ? 1 : 0;
-  } catch (cms::Exception& e) {
+    float bFieldZ = magneticField.inTesla(GlobalPoint(0., 0., 0.)).z();
+    magnetOn_ = (std::abs(bFieldZ) > 0.1) ? 1 : 0;
+  }catch (cms::Exception& e) {
     edm::LogWarning("MuonNtupleProducer") << "IdealMagneticFieldRecord not available, assuming magnetOff.";
   }
   
   nMuons_ = 0;
-  nSeg_ = 0;
+  //nSeg_ = 0;
 
   edm::Handle<std::vector<reco::Muon>> muons;
   iEvent.getByToken(muonsToken_, muons);
-  edm::Handle<DTRecSegment4DCollection> dtSegments;
-  iEvent.getByToken(dtSegmentsToken_, dtSegments);
-  edm::Handle<CSCSegmentCollection> cscSegments;
-  iEvent.getByToken(cscSegmentsToken_, cscSegments);
+  // edm::Handle<DTRecSegment4DCollection> dtSegments;
+  // iEvent.getByToken(dtSegmentsToken_, dtSegments);
+  // edm::Handle<CSCSegmentCollection> cscSegments;
+  // iEvent.getByToken(cscSegmentsToken_, cscSegments);
   
   for (const auto& mu : *muons) {
     if (nMuons_ >= MAX) break;
@@ -189,96 +192,96 @@ void MuonNtupleProducer::analyze(const edm::Event& iEvent, const edm::EventSetup
   }
 
 
-  std::map<const GeomDet*, std::vector<TrackingRecHit *> > DetAllSegmentsMap;
-  std::map<const GeomDet*, std::vector<TrackingRecHit *> >::iterator it;
-  // Loop over DT segments
-  for (auto itSeg = dtSegments->begin(); itSeg != dtSegments->end(); itSeg++) {
-    //Only valid segments & hasZ & hasPhi
-    if(!itSeg->isValid() || !itSeg->hasPhi()) continue;
-    DetId myDet = itSeg->geographicalId();
-    const GeomDet *geomDet = theService->trackingGeometry()->idToDet(myDet);
-    if(geomDet->geographicalId().subdetId()  == MuonSubdetId::DT){
-      DTWireId id(geomDet->geographicalId().rawId());
-      if(id.station() != 4 && !itSeg->hasZed()){continue;}
-      if(id.station() != 4 && itSeg->dimension()!=4){continue;}
-    }
-    //Get the GeomDet associated to this DetId
-    it = DetAllSegmentsMap.find(geomDet);
-    if(it == DetAllSegmentsMap.end()) {
-      //No -> we create a pair of GeomDet and vector of hits, and put the hit in the vector.
-      std::vector<TrackingRecHit *> trhit;
-      TrackingRecHit *rechitref = (TrackingRecHit *)&(*itSeg);
-      trhit.push_back(rechitref);
-      DetAllSegmentsMap.insert(std::pair<const GeomDet*, std::vector<TrackingRecHit *> > (geomDet, trhit));
-    } else {
-      //Yes -> we just put the hit in the corresponding hit vector.
-      TrackingRecHit *rechitref = (TrackingRecHit *) &(*itSeg);
-      it->second.push_back(rechitref);
-    }
-  }
+  // std::map<const GeomDet*, std::vector<TrackingRecHit *> > DetAllSegmentsMap;
+  // std::map<const GeomDet*, std::vector<TrackingRecHit *> >::iterator it;
+  // // Loop over DT segments
+  // for (auto itSeg = dtSegments->begin(); itSeg != dtSegments->end(); itSeg++) {
+  //   //Only valid segments & hasZ & hasPhi
+  //   if(!itSeg->isValid() || !itSeg->hasPhi()) continue;
+  //   DetId myDet = itSeg->geographicalId();
+  //   const GeomDet *geomDet = theService->trackingGeometry()->idToDet(myDet);
+  //   if(geomDet->geographicalId().subdetId()  == MuonSubdetId::DT){
+  //     DTWireId id(geomDet->geographicalId().rawId());
+  //     if(id.station() != 4 && !itSeg->hasZed()){continue;}
+  //     if(id.station() != 4 && itSeg->dimension()!=4){continue;}
+  //   }
+  //   //Get the GeomDet associated to this DetId
+  //   it = DetAllSegmentsMap.find(geomDet);
+  //   if(it == DetAllSegmentsMap.end()) {
+  //     //No -> we create a pair of GeomDet and vector of hits, and put the hit in the vector.
+  //     std::vector<TrackingRecHit *> trhit;
+  //     TrackingRecHit *rechitref = (TrackingRecHit *)&(*itSeg);
+  //     trhit.push_back(rechitref);
+  //     DetAllSegmentsMap.insert(std::pair<const GeomDet*, std::vector<TrackingRecHit *> > (geomDet, trhit));
+  //   } else {
+  //     //Yes -> we just put the hit in the corresponding hit vector.
+  //     TrackingRecHit *rechitref = (TrackingRecHit *) &(*itSeg);
+  //     it->second.push_back(rechitref);
+  //   }
+  // }
 
-  // Loop over CSC segments
-  for (auto itSeg = cscSegments->begin(); itSeg != cscSegments->end(); itSeg++) {
-    //Only valid segments     
-    if(!itSeg->isValid()) continue;
-    DetId myDet = itSeg->geographicalId();
-    const GeomDet *geomDet = theService->trackingGeometry()->idToDet(myDet);
-    //Get the GeomDet associated to this DetId
-    it = DetAllSegmentsMap.find(geomDet);
-    if(it == DetAllSegmentsMap.end()) {
-      //No -> we create a pair of GeomDet and vector of hits, and put the hit in the vector.
-      std::vector<TrackingRecHit *> trhit;
-      TrackingRecHit *rechitref = (TrackingRecHit *)&(*itSeg);
-      trhit.push_back(rechitref);
-      DetAllSegmentsMap.insert(std::pair<const GeomDet*, std::vector<TrackingRecHit *> > (geomDet, trhit));
-    } else {
-      //Yes -> we just put the hit in the corresponding hit vector.
-      TrackingRecHit *rechitref = (TrackingRecHit *) &(*itSeg);
-      it->second.push_back(rechitref);
-    }
-  }
+  // // Loop over CSC segments
+  // for (auto itSeg = cscSegments->begin(); itSeg != cscSegments->end(); itSeg++) {
+  //   //Only valid segments     
+  //   if(!itSeg->isValid()) continue;
+  //   DetId myDet = itSeg->geographicalId();
+  //   const GeomDet *geomDet = theService->trackingGeometry()->idToDet(myDet);
+  //   //Get the GeomDet associated to this DetId
+  //   it = DetAllSegmentsMap.find(geomDet);
+  //   if(it == DetAllSegmentsMap.end()) {
+  //     //No -> we create a pair of GeomDet and vector of hits, and put the hit in the vector.
+  //     std::vector<TrackingRecHit *> trhit;
+  //     TrackingRecHit *rechitref = (TrackingRecHit *)&(*itSeg);
+  //     trhit.push_back(rechitref);
+  //     DetAllSegmentsMap.insert(std::pair<const GeomDet*, std::vector<TrackingRecHit *> > (geomDet, trhit));
+  //   } else {
+  //     //Yes -> we just put the hit in the corresponding hit vector.
+  //     TrackingRecHit *rechitref = (TrackingRecHit *) &(*itSeg);
+  //     it->second.push_back(rechitref);
+  //   }
+  // }
 
 
-  for (auto it = DetAllSegmentsMap.begin(); it != DetAllSegmentsMap.end(); ++it) {
-    const GeomDet* geom = it->first;
-    const auto& segVec  = it->second;
-    for (size_t i = 0; i < segVec.size(); ++i) {
-      const auto* seg = segVec[i];
-      LocalPoint  seg_lp  = seg->localPosition();
-      GlobalPoint seg_gp  = geom->surface().toGlobal(seg_lp);
-      if((*it).second.at(i)->geographicalId().subdetId() == MuonSubdetId::DT){
-	DTWireId id((*it).second.at(i)->geographicalId().rawId());
-	Seg_isDT_[nSeg_] =1;
-	Seg_isCSC_[nSeg_] =0;
-	Seg_DTstation_[nSeg_] =id.station();
-	Seg_CSCstation_[nSeg_] =-9999;
-	DTRecSegment4D *mySegment = dynamic_cast<DTRecSegment4D *>((*it).second.at(i));
-	GlobalVector gv = it->first->surface().toGlobal(mySegment->localDirection());
-	Seg_dirx_[nSeg_] =gv.x();
-	Seg_diry_[nSeg_] =gv.y();
-	Seg_dirz_[nSeg_] =gv.z();
-	Seg_chi2_[nSeg_] =mySegment->chi2();
-	Seg_ndof_[nSeg_] =mySegment->degreesOfFreedom();
-      }else if((*it).second.at(i)->geographicalId().subdetId() == MuonSubdetId::CSC){
-	CSCDetId id((*it).second.at(i)->geographicalId().rawId());
-	Seg_isDT_[nSeg_] =0;
-	Seg_isCSC_[nSeg_] =1;
-	Seg_DTstation_[nSeg_] =-9999;
-	Seg_CSCstation_[nSeg_] =id.station();
-	CSCSegment *mySegment = dynamic_cast<CSCSegment *>((*it).second.at(i));
-	GlobalVector gv = it->first->surface().toGlobal(mySegment->localDirection());
-	Seg_dirx_[nSeg_] =gv.x();
-	Seg_diry_[nSeg_] =gv.y();
-	Seg_dirz_[nSeg_] =gv.z();
-	Seg_chi2_[nSeg_] =mySegment->chi2();
-	Seg_ndof_[nSeg_] =mySegment->degreesOfFreedom();
-      }
-      Seg_x_[nSeg_] =seg_gp.x(); 
-      Seg_y_[nSeg_] =seg_gp.y(); 
-      Seg_z_[nSeg_] =seg_gp.z();
-      ++nSeg_;
-    }
-  }
+  // for (auto it = DetAllSegmentsMap.begin(); it != DetAllSegmentsMap.end(); ++it) {
+  //   const GeomDet* geom = it->first;
+  //   const auto& segVec  = it->second;
+  //   for (size_t i = 0; i < segVec.size(); ++i) {
+  //     const auto* seg = segVec[i];
+  //     LocalPoint  seg_lp  = seg->localPosition();
+  //     GlobalPoint seg_gp  = geom->surface().toGlobal(seg_lp);
+  //     if((*it).second.at(i)->geographicalId().subdetId() == MuonSubdetId::DT){
+  // 	DTWireId id((*it).second.at(i)->geographicalId().rawId());
+  // 	Seg_isDT_[nSeg_] =1;
+  // 	Seg_isCSC_[nSeg_] =0;
+  // 	Seg_DTstation_[nSeg_] =id.station();
+  // 	Seg_CSCstation_[nSeg_] =-9999;
+  // 	DTRecSegment4D *mySegment = dynamic_cast<DTRecSegment4D *>((*it).second.at(i));
+  // 	GlobalVector gv = it->first->surface().toGlobal(mySegment->localDirection());
+  // 	Seg_dirx_[nSeg_] =gv.x();
+  // 	Seg_diry_[nSeg_] =gv.y();
+  // 	Seg_dirz_[nSeg_] =gv.z();
+  // 	Seg_chi2_[nSeg_] =mySegment->chi2();
+  // 	Seg_ndof_[nSeg_] =mySegment->degreesOfFreedom();
+  //     }else if((*it).second.at(i)->geographicalId().subdetId() == MuonSubdetId::CSC){
+  // 	CSCDetId id((*it).second.at(i)->geographicalId().rawId());
+  // 	Seg_isDT_[nSeg_] =0;
+  // 	Seg_isCSC_[nSeg_] =1;
+  // 	Seg_DTstation_[nSeg_] =-9999;
+  // 	Seg_CSCstation_[nSeg_] =id.station();
+  // 	CSCSegment *mySegment = dynamic_cast<CSCSegment *>((*it).second.at(i));
+  // 	GlobalVector gv = it->first->surface().toGlobal(mySegment->localDirection());
+  // 	Seg_dirx_[nSeg_] =gv.x();
+  // 	Seg_diry_[nSeg_] =gv.y();
+  // 	Seg_dirz_[nSeg_] =gv.z();
+  // 	Seg_chi2_[nSeg_] =mySegment->chi2();
+  // 	Seg_ndof_[nSeg_] =mySegment->degreesOfFreedom();
+  //     }
+  //     Seg_x_[nSeg_] =seg_gp.x(); 
+  //     Seg_y_[nSeg_] =seg_gp.y(); 
+  //     Seg_z_[nSeg_] =seg_gp.z();
+  //     ++nSeg_;
+  //   }
+  // }
   tree_->Fill();
 }
 
