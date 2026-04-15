@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
@@ -29,6 +30,10 @@
 #include "RecoMuon/GlobalTrackingTools/interface/StateSegmentMatcher.h"
 #include "TTree.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+
+
+// reco::Muon class: https://github.com/cms-sw/cmssw/blob/master/DataFormats/MuonReco/interface/Muon.h
+// Muon POG selections & definitions: https://github.com/cms-sw/cmssw/blob/master/DataFormats/MuonReco/src/MuonSelectors.cc
 
 class MuonServiceProxy;
 
@@ -61,12 +66,12 @@ private:
   int magnetOn_;
 
   // Reco muon variables
-  int nMuons_;
+  int nMuons_, muonCharge_[MAX];
   float muonPt_[MAX], muonEta_[MAX], muonPhi_[MAX];
-  int muonCharge_[MAX];
-  int muonValidMuonHits_[MAX], muonValidGlobalHits_[MAX], muonValidStandaloneHits_[MAX], muonMatchedStations_[MAX];
-  int muonIsGlobal_[MAX], muonIsTracker_[MAX], muonIsStandalone_[MAX], muonIsPF_[MAX], muonIsRPC_[MAX];
-  float muonDxy_[MAX], muonDz_[MAX];
+  int muonValidMuonHits_[MAX], muonGlbValidHits_[MAX], muonOuterValidHits_[MAX], muonInnerLayersWithMeasurement_[MAX], muonInnernumberOfValidPixelHits_[MAX], muonMatchedStations_[MAX], muonNumberOfShowers_[MAX];
+  int muonIsGlobal_[MAX], muonIsTracker_[MAX], muonIsStandalone_[MAX], muonIsPF_[MAX], muonIsGoodMuon_[MAX];
+  float muonInnerDxy_[MAX], muonInnerDz_[MAX], muonInnerValidHitFraction_[MAX];
+  float muonSegmentCompatibility_[MAX], muonGlbNormalizedChi2_[MAX], muonOuterNormalizedChi2_[MAX], muonChi2LocalPosition_[MAX], muonCaloCompatibility_[MAX], muonHCALEnergy_[MAX];
   int muonSegmentsDT_[MAX], muonSegmentsCSC_[MAX], muonSegmentsRPC_[MAX];
   
   // Segments
@@ -107,16 +112,25 @@ void MuonNtupleProducer::beginJob() {
   tree_->Branch("muonEta", muonEta_, "muonEta[nMuons]/F");
   tree_->Branch("muonPhi", muonPhi_, "muonPhi[nMuons]/F");
   tree_->Branch("muonCharge", muonCharge_, "muonCharge[nMuons]/I");
-  tree_->Branch("muonValidGlobalHits", muonValidGlobalHits_, "muonValidGlobalHits[nMuons]/I");
-  tree_->Branch("muonValidStandaloneHits", muonValidStandaloneHits_, "muonValidStandaloneHits[nMuons]/I");
+  tree_->Branch("muonGlbValidHits", muonGlbValidHits_, "muonGlbValidHits[nMuons]/I");
+  tree_->Branch("muonOuterValidHits", muonOuterValidHits_, "muonOuterValidHits[nMuons]/I");
+  tree_->Branch("muonInnerLayersWithMeasurement", muonInnerLayersWithMeasurement_, "muonInnerLayersWithMeasurement[nMuons]/I");
+  tree_->Branch("muonInnernumberOfValidPixelHits", muonInnernumberOfValidPixelHits_, "muonInnernumberOfValidPixelHits[nMuons]/I");
   tree_->Branch("muonMatchedStations", muonMatchedStations_, "muonMatchedStations[nMuons]/I");
+  tree_->Branch("muonNumberOfShowers", muonNumberOfShowers_, "muonNumberOfShowers[nMuons]/I");
   tree_->Branch("muonIsGlobal", muonIsGlobal_, "muonIsGlobal[nMuons]/I");
   tree_->Branch("muonIsTracker", muonIsTracker_, "muonIsTracker[nMuons]/I");
   tree_->Branch("muonIsStandalone", muonIsStandalone_, "muonIsStandalone[nMuons]/I");
   tree_->Branch("muonIsPF", muonIsPF_, "muonIsPF[nMuons]/I");
-  tree_->Branch("muonIsRPC", muonIsRPC_, "muonIsRPC[nMuons]/I");
-  tree_->Branch("muonDxy", muonDxy_, "muonDxy[nMuons]/F");
-  tree_->Branch("muonDz", muonDz_, "muonDz[nMuons]/F");
+  tree_->Branch("muonIsGoodMuon", muonIsGoodMuon_, "muonIsGoodMuon[nMuons]/I");
+  tree_->Branch("muonInnerDz", muonInnerDz_, "muonInnerDz[nMuons]/F");
+  tree_->Branch("muonSegmentCompatibility", muonSegmentCompatibility_, "muonSegmentCompatibility[nMuons]/F");
+  tree_->Branch("muonInnerValidHitFraction", muonInnerValidHitFraction_, "muonInnerValidHitFraction[nMuons]/F");
+  tree_->Branch("muonGlbNormalizedChi2", muonGlbNormalizedChi2_, "muonGlbNormalizedChi2[nMuons]/F");
+  tree_->Branch("muonOuterNormalizedChi2", muonOuterNormalizedChi2_, "muonOuterNormalizedChi2[nMuons]/F");
+  tree_->Branch("muonChi2LocalPosition", muonChi2LocalPosition_, "muonChi2LocalPosition[nMuons]/F");
+  tree_->Branch("muonCaloCompatibility", muonCaloCompatibility_, "muonCaloCompatibility[nMuons]/F");
+  tree_->Branch("muonHCALEnergy", muonHCALEnergy_, "muonHCALEnergy[nMuons]/F");
   tree_->Branch("muonSegmentsDT", muonSegmentsDT_, "muonSegmentsDT[nMuons]/I");
   tree_->Branch("muonSegmentsCSC", muonSegmentsCSC_, "muonSegmentsCSC[nMuons]/I");
   tree_->Branch("muonSegmentsRPC", muonSegmentsRPC_, "muonSegmentsRPC[nMuons]/I");
@@ -169,17 +183,28 @@ void MuonNtupleProducer::analyze(const edm::Event& iEvent, const edm::EventSetup
     muonEta_[nMuons_] = mu.eta();
     muonPhi_[nMuons_] = mu.phi();
     muonCharge_[nMuons_] = mu.charge();
-    muonValidGlobalHits_[nMuons_] = mu.globalTrack().isNonnull() ? mu.globalTrack()->hitPattern().numberOfValidMuonHits() : -1;
-    muonValidStandaloneHits_[nMuons_] = mu.outerTrack().isNonnull() ? mu.outerTrack()->numberOfValidHits() : -1;
+    muonGlbValidHits_[nMuons_] = mu.globalTrack().isNonnull() ? mu.globalTrack()->hitPattern().numberOfValidMuonHits() : -1;
+    muonOuterValidHits_[nMuons_] = mu.outerTrack().isNonnull() ? mu.outerTrack()->numberOfValidHits() : -1;
+    muonInnerLayersWithMeasurement_[nMuons_] = mu.innerTrack().isNonnull() ? mu.innerTrack()->hitPattern().trackerLayersWithMeasurement() : -1;
+    muonInnernumberOfValidPixelHits_[nMuons_] = mu.innerTrack().isNonnull() ? mu.innerTrack()->hitPattern().numberOfValidPixelHits() : -1;
     muonMatchedStations_[nMuons_] = mu.numberOfMatchedStations();
+    muonNumberOfShowers_[nMuons_] = mu.numberOfShowers();
     muonIsGlobal_[nMuons_] = mu.isGlobalMuon();
     muonIsTracker_[nMuons_] = mu.isTrackerMuon();
     muonIsStandalone_[nMuons_] = mu.isStandAloneMuon();
     muonIsPF_[nMuons_] = mu.isPFMuon();
-    muonIsRPC_[nMuons_] = mu.isRPCMuon();
-    muonDxy_[nMuons_] = mu.innerTrack().isNonnull() ? mu.innerTrack()->dxy() : -999.0;
-    muonDz_[nMuons_] = mu.innerTrack().isNonnull() ? mu.innerTrack()->dz() : -999.0;
+    muonIsGoodMuon_[nMuons_] = muon::isGoodMuon(mu, muon::TMOneStationTight) ? 1 : 0;
 
+    muonInnerDxy_[nMuons_] = mu.innerTrack().isNonnull() ? mu.innerTrack()->dxy() : -999.0;
+    muonInnerDz_[nMuons_] = mu.innerTrack().isNonnull() ? mu.innerTrack()->dz() : -999.0;
+    muonSegmentCompatibility_[nMuons_] = muon::segmentCompatibility(mu);
+    muonInnerValidHitFraction_[nMuons_] = mu.innerTrack().isNonnull() ? mu.innerTrack()->validFraction() : -999.0;
+    muonGlbNormalizedChi2_[nMuons_] = mu.globalTrack().isNonnull() ? mu.globalTrack()->normalizedChi2(): -999.9;
+    muonOuterNormalizedChi2_[nMuons_] = mu.outerTrack().isNonnull() ? mu.outerTrack()->normalizedChi2(): -999.9;
+    muonChi2LocalPosition_[nMuons_] = mu.combinedQuality().chi2LocalPosition; // always returns 0. To be checked.
+    muonCaloCompatibility_[nMuons_] = mu.caloCompatibility();
+    muonHCALEnergy_[nMuons_] = mu.calEnergy().had;
+      
     muonSegmentsDT_[nMuons_] = 0;
     muonSegmentsCSC_[nMuons_] = 0;
     muonSegmentsRPC_[nMuons_] = 0;
