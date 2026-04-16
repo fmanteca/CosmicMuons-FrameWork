@@ -26,7 +26,9 @@ The framework will produce Ntuples from AOD. Every time you make a change anywhe
 ### Submit jobs to HTCondor
 
 Before running the following commands, set your personal path in run.sh and select the input datasets and output path in prepare_files.py.
+
 prepare_files.py will produce a txt file where each row will contain a pair input_file output_file. 
+
 condor.sub will submit one job per row to the cluster, taking run.sh as the executable.
 
     cd condor
