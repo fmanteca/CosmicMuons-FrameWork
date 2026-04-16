@@ -41,12 +41,14 @@ Merge the outputs with hadd. Example:
     hadd /eos/cms/store/group/phys_muon/fernanpe/Cosmics2025/merged.root /eos/cms/store/group/phys_muon/fernanpe/Cosmics2025/*/*root
     
 ### OR Submit jobs to crab
-The following instructions will allow to submit jobs to the cluster for an entire dataset like '/Cosmics/Run2025A-PromptReco-v1/AOD'. The output ntuples will be stored in your '/eos/user/' area.
+The following instructions will allow to submit jobs to the cluster for an entire dataset like '/Cosmics/Run2025A-PromptReco-v1/AOD'. The output ntuples can be stored in your '/eos/user/' area if T3_CH_CERNBOX is set as storage site (see crab_CosmicsData_2025A_AOD.py).
 
     source /cvmfs/cms.cern.ch/crab3/crab.sh
     cmsenv
     voms-proxy-init --voms cms --valid 168:00
     crab submit crab_Commissioning2025.py
+
+This option is useful when the dataset is no longer available on disk, as crab will request a copy on disk automatically before starting running the jobs.
 
 ### Useful links:
 * Muon reconstruction documentation: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideMuons
