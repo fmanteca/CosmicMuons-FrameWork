@@ -93,12 +93,10 @@ MuonNtupleProducer::MuonNtupleProducer(const edm::ParameterSet& iConfig) {
 }
 
 void MuonNtupleProducer::beginJob() {
-  
-  // Output file definition
-  output_filename = "ntuples.root";
-  file_ = new TFile(output_filename.c_str(), "RECREATE");
-  tree_ = new TTree("Events", "Flat muon ntuple");
-  file_->cd();
+
+  // // Output file definition
+  edm::Service<TFileService> fs;
+  tree_ = fs->make<TTree>("Events", "Flat muon ntuple");
 
   tree_->Branch("run", &run_, "run/i");
   tree_->Branch("lumi", &lumi_, "lumi/i");
@@ -311,9 +309,6 @@ void MuonNtupleProducer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 void MuonNtupleProducer::endJob() 
 {
-    file_->cd();
-    tree_->Write();
-    file_->Close();
 
 }
 DEFINE_FWK_MODULE(MuonNtupleProducer);
