@@ -1,4 +1,8 @@
 #!/bin/sh
+export X509_USER_PROXY=/afs/cern.ch/user/f/fernanpe/.x509up_96649
+voms-proxy-info
+export VO_CMS_SW_DIR=/cvmfs/cms.cern.ch
+source $VO_CMS_SW_DIR/cmsset_default.sh
 
 cd /eos/user/f/fernanpe/CMSSW_15_0_5/src/CosmicMuons-FrameWork/Ntuplizer/test/condor
 cmsenv
