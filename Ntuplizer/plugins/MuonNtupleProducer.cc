@@ -304,7 +304,11 @@ void MuonNtupleProducer::analyze(const edm::Event& iEvent, const edm::EventSetup
   //     ++nSeg_;
   //   }
   // }
-  tree_->Fill();
+
+  if (nMuons_ > 0) {
+    // Fill the TTree if there is at least one reco::Muon in the event
+    tree_->Fill();
+  }
 }
 
 void MuonNtupleProducer::endJob() 
