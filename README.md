@@ -37,6 +37,7 @@ condor.sub will submit one job per row to the cluster, taking run.sh as the exec
     condor_submit condor.sub
 
 Merge the outputs with hadd. Example:
+
     hadd /eos/cms/store/group/phys_muon/fernanpe/Cosmics2025/merged.root /eos/cms/store/group/phys_muon/fernanpe/Cosmics2025/*/*root
     
 ### OR Submit jobs to crab
