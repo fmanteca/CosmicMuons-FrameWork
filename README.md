@@ -32,6 +32,7 @@ prepare_files.py will produce a txt file where each row will contain a pair inpu
 condor.sub will submit one job per row to the cluster, taking run.sh as the executable.
 
     cd condor
+    voms-proxy-init --voms cms --hours 96  -out ${HOME}/.x509up_${UID};export X509_USER_PROXY=${HOME}/.x509up_${UID}
     python3 prepare_files.py
     condor_submit condor.sub
 
