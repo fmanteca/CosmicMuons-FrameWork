@@ -23,7 +23,18 @@ The framework will produce Ntuples from AOD. Every time you make a change anywhe
     
     cmsRun Cosmics_runNtuplizer_AOD_cfg.py
 
-### Submit jobs to crab
+### Submit jobs to HTCondor
+
+Before running the following commands, set your personal path in run.sh and select the input datasets and output path in prepare_files.py.
+prepare_files.py will produce a txt file where each row will contain a pair input_file output_file. 
+condor.sub will submit one job per row to the cluster, taking run.sh as the executable.
+
+    cd condor
+    python3 prepare_files.py
+    condor_submit condor.sub
+
+    
+### OR Submit jobs to crab
 The following instructions will allow to submit jobs to the cluster for an entire dataset like '/Cosmics/Run2025A-PromptReco-v1/AOD'. The output ntuples will be stored in your '/eos/user/' area.
 
     source /cvmfs/cms.cern.ch/crab3/crab.sh
