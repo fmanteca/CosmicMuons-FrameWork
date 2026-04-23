@@ -73,11 +73,13 @@ Instructions for cosmic multi-muons:
 
 ### Including muon segments and hits in AOD
 
-It turns out that, by default, CMS saves muon segments in AOD for pp collision runs, but not for cosmics. One has to add them here: https://github.com/cms-sw/cmssw/blob/master/RecoLocalMuon/Configuration/python/RecoLocalMuonCosmics_EventContent_cff.py#L5. Benchmark from pp cfg: https://github.com/cms-sw/cmssw/blob/master/RecoLocalMuon/Configuration/python/RecoLocalMuon_EventContent_cff.py#L7-L13
+It turns out that, by default, CMS saves muon segments in AOD for pp collision runs, but not for cosmics. One has to add them here: https://github.com/cms-sw/cmssw/blob/master/RecoLocalMuon/Configuration/python/RecoLocalMuonCosmics_EventContent_cff.py#L5. Benchmark from pp cfg: https://github.com/cms-sw/cmssw/blob/master/RecoLocalMuon/Configuration/python/RecoLocalMuon_EventContent_cff.py#L7-L13.
+
+Follow these instructions to produce customized AOD (with muon segments in) from RAW data:
 
     git cms-addpkg RecoLocalMuon/Configuration
     Edit RecoLocalMuon/Configuration/python/RecoLocalMuonCosmics_EventContent_cff.py
     scram b -j 20
     cmsDriver.py CosmicPPreco --step RAW2DIGI,RECO --datatier AOD --eventcontent AOD --filein=/store/data/Run2024C/Cosmics/RAW/v1/000/379/417/00000/022b1b63-e126-4800-be9a-cbd752664a95.root --conditions 140X_dataRun3_Prompt_v2 --era Run3 --scenario cosmics --data -n 100
 
-Submit jobs to crab taking /Cosmics/Commissioning2025-v1/RAW as the input dataset.
+Finally, submit jobs to crab taking /Cosmics/Commissioning2025-v1/RAW as the input dataset.
