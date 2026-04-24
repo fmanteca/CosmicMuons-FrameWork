@@ -80,7 +80,7 @@ Follow these instructions to produce customized AOD (with muon segments in) from
     git cms-addpkg RecoLocalMuon/Configuration
     Edit RecoLocalMuon/Configuration/python/RecoLocalMuonCosmics_EventContent_cff.py
     scram b -j 20
-    cmsDriver.py CosmicPPreco --step RAW2DIGI,RECO --datatier AOD --eventcontent AOD --filein=/store/data/Run2024C/Cosmics/RAW/v1/000/379/417/00000/022b1b63-e126-4800-be9a-cbd752664a95.root --conditions 140X_dataRun3_Prompt_v2 --era Run3 --scenario cosmics --data -n 100
+    cmsDriver.py CosmicPPreco --step RAW2DIGI,RECO --datatier AOD --eventcontent AOD --filein=/store/data/Run2024C/Cosmics/RAW/v1/000/379/417/00000/022b1b63-e126-4800-be9a-cbd752664a95.root --fileout file:CosmicPPreco_RAW2DIGI_RECO.root --conditions 140X_dataRun3_Prompt_v2 --era Run3 --scenario cosmics --data -n 100
 
 Finally, submit jobs to crab taking /Cosmics/Commissioning2025-v1/RAW as the input dataset:
 
