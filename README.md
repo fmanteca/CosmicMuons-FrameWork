@@ -186,6 +186,6 @@ Compile from CMSSW_X_Y/src and run:
      scram b -j 20
      cmsRun GEN_SIM_to_AOD_cfg.py
 
-Now you can feed FireWorks with the output file, make the flat ntuples, etc, and check out things. 
+Now one can feed FireWorks with the AOD output file, make the flat ntuples, etc. 
 
 Note that some modifications will be needed to include the generated particles truth information in the flat ntuples, i.e., read the `genParticles` collection, loop over the elements, store in new output branches the kinematic information from the muons. This is a good exercise for homework.
