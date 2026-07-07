@@ -188,4 +188,4 @@ Compile from CMSSW_X_Y/src and run:
 
 Now you can feed FireWorks with the output file, make the flat ntuples, etc, and check out things. 
 
-Note that some modifications will be needed to include the generated particles truth information in the flat ntuples. 
+Note that some modifications will be needed to include the generated particles truth information in the flat ntuples, i.e., read the `genParticles` collection, loop over the elements, store in new output branches the kinematic information from the muons. This is a good exercise for homework.
