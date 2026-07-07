@@ -86,9 +86,9 @@ Finally, submit jobs to crab taking /Cosmics/Commissioning2025-v1/RAW as the inp
 
      crab submit  crab_CosmicPPreco.py
 
-### Simulation
+## Simulation studies
 
-We will make use of the FlatRandomPtGunProducer to generate guns of cosmic muons. It is designed to simulate collisions, meaning it generates particles exactly at the center of the detector (0,0,0) and fires them outwards. If one uses the module as is, the muons will be born at the center. Half will go upwards (passing only through the top half) and half downwards (passing only through the bottom half). To get them to completely pass through the detector from top to bottom, simulating cosmic rays, we have to trick CMSSW by doing two things: 
+We will make use of the `FlatRandomPtGunProducer` to generate guns of cosmic muons. It is designed to simulate collisions, meaning it generates particles exactly at the center of the detector (0,0,0) and fires them outwards. If one uses the module as is, the muons will be born at the center. Half will go upwards (passing only through the top half) and half downwards (passing only through the bottom half). To get them to completely pass through the detector from top to bottom, simulating cosmic rays, we have to trick CMSSW by doing two things: 
 
 1. Restricting the angles so that the "Gun" only fires downwards.
 
