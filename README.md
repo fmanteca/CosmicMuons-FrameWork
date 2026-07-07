@@ -190,4 +190,4 @@ Compile from CMSSW_X_Y/src and run:
 
 Now one can feed FireWorks with the AOD output file, make the flat ntuples, etc. 
 
-Note that some modifications will be needed to include the generated particles truth information in the flat ntuples, i.e., read the `genParticles` collection, loop over the elements, store in new output branches the kinematic information from the muons. This is a good exercise for homework.
+Note that some modifications will be needed to include the generated particles truth information in the flat ntuples, i.e., read the `genParticles` collection, loop over the elements, store in new output branches the kinematic information from the muons. This is a good exercise for homework. In case it helps, I used to read that collection in the past for another project. The code logic behind is different as I was geometrically matching gen and reco muons, but some parts of the code can be taken as a benchmark: https://github.com/fmanteca/HighPt_DNN/tree/master/MyAnalysis/RECOAnalysis
