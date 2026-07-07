@@ -154,9 +154,11 @@ process.VtxSmeared = cms.EDProducer("FlatEvtVtxGenerator",
 ```
 
 Finally, run it:
+
      cmsRun MultiCosmicGun_GEN_SIM_cfg.py
 
 The output file should contain GEN-SIM information. You can check out the event content by running:
+
      edmDumpEventContent GEN-SIM_MultiCosmic.root
 
 #### 3. Produce AOD
