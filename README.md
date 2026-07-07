@@ -64,7 +64,9 @@ Use edmPickEvents.py to filter out events if needed (see https://twiki.cern.ch/t
 
 Copy the output to a public /eos/cms/store/group/ path.
 
-Insert path here: https://fireworks.cern.ch/cmsShowWeb/revetor.pl (starting with /store/)
+Insert path here: [https://fireworks.cern.ch/cmsShowWeb/revetor.pl](https://fireworks.cern.ch/cmsShowWeb/service.pl) (starting with /store/)
+
+There is also the possibility to read files from your /eos/user/ private path. Follow the instructions here: https://github.com/alja/FireworksWeb/blob/main/doc/UserGuide.md
 
 Instructions for cosmic multi-muons:
 * Add Collections -> type "leg" -> select "Muons muon1Leg"
