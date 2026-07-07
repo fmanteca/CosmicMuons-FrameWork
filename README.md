@@ -85,3 +85,105 @@ Follow these instructions to produce customized AOD (with muon segments in) from
 Finally, submit jobs to crab taking /Cosmics/Commissioning2025-v1/RAW as the input dataset:
 
      crab submit  crab_CosmicPPreco.py
+
+### Simulation
+
+We will make use of the FlatRandomPtGunProducer to generate guns of cosmic muons. It is designed to simulate collisions, meaning it generates particles exactly at the center of the detector (0,0,0) and fires them outwards. If one uses the module as is, the muons will be born at the center. Half will go upwards (passing only through the top half) and half downwards (passing only through the bottom half). To get them to completely pass through the detector from top to bottom, simulating cosmic rays, we have to trick CMSSW by doing two things: 
+
+1. Restricting the angles so that the "Gun" only fires downwards.
+
+2. Move the collision vertex to the top of the detector cavern.
+
+#### 1. The Generator: Firing Downwards.
+
+In the CMS coordinate system, the Y-axis points upwards. The azimuthal angle $\phi$ dictates the direction in the transverse plane: $\phi = +\pi/2$ is upwards. $\phi = -\pi/2$ is directly downwards. We configure the generator to fire, for example, 4 muons that go exclusively in the lower hemisphere (downwards):
+
+     git cms-init
+     git cms-addpkg Configuration/Generator
+     cd Configuration/Generator/python
+     cmsenv
+     
+Create a file `MultiCosmicGun_cfi.py` in `Configuration/Generator/python` with the following content:
+     
+```
+import FWCore.ParameterSet.Config as cms
+import math
+
+generator = cms.EDProducer("FlatRandomPtGunProducer",
+    PGunParameters = cms.PSet(
+        # Muons per event defined in PartID                                                                                                                                                         
+        PartID = cms.vint32(13, 13, 13, 13),
+        MinPt  = cms.double(10.0),
+        MaxPt  = cms.double(3000.0),
+        MinEta = cms.double(-2.5),
+        MaxEta = cms.double(2.5),
+        # Nehative phi: all the particles point downwards (-Y)                                                                                                                                      
+        MinPhi = cms.double(-math.pi),
+        MaxPhi = cms.double(0.0)
+    ),
+    AddAntiParticle = cms.bool(False),
+    Verbosity       = cms.untracked.int32(0)
+)
+
+ProductionFilterSequence = cms.Sequence(generator)
+```
+
+And create the CMSSW config file to produce GEN-SIM under Run-3 cosmic conditions:
+
+     (cd CMSSW_X_Y/src)
+     cmsDriver.py MultiCosmicGun_cfi      --fileout file:GEN-SIM_MultiCosmic.root      --mc      --eventcontent RAWSIM      --datatier GEN-SIM      --conditions auto:phase1_2025_cosmics      --beamspot NoVertexSmear      --scenario cosmics      --step GEN,SIM      --geometry DB:Extended      --era Run3      -n 100      --python_filename MultiCosmicGun_GEN_SIM_cfg.py      --no_exec
+
+#### 2. The Vertex: Move the origin to the top.
+
+Now we need to tell CMSSW that these particles are not born at the center $(0,0,0)$, but on an imaginary plane above the detector (for example, at $Y = +800$ cm, just outside the muon barrel). Add this block at the end of the produced cfg file:
+
+```
+# =========================================================
+# HACK: Move the origin of the muons to the top of the cavern
+# =========================================================
+process.VtxSmeared = cms.EDProducer("FlatEvtVtxGenerator",
+    MinX = cms.double(-500.0), # Transversal area: 10 meters 
+    MaxX = cms.double(500.0),
+    MinY = cms.double(800.0),  # Origin at 8 meter height (on top of the detector)
+    MaxY = cms.double(800.0),
+    MinZ = cms.double(-600.0), # Longitudinal length: 12 meters 
+    MaxZ = cms.double(600.0),
+    TimeOffset = cms.double(0.0),
+    src = cms.InputTag("generator", "unsmeared")
+)
+```
+
+Finally, run it:
+     cmsRun MultiCosmicGun_GEN_SIM_cfg.py
+
+The output file should contain GEN-SIM information. You can check out the event content by running:
+     edmDumpEventContent GEN-SIM_MultiCosmic.root
+
+#### 3. Produce AOD
+
+The last step consists of running the GEN-SIM -> AOD step, so that we have the same data format as in data, but including information from the generated particles.
+
+     cmsDriver.py step2      --filein file:GEN-SIM_MultiCosmic.root      --fileout file:AODSIM.root      --mc      --eventcontent AOD      --datatier AOD      --conditions auto:phase1_2025_cosmics      --scenario cosmics      --step DIGI,L1,DIGI2RAW,HLT,RAW2DIGI,L1Reco,RECO,RECOSIM      --geometry DB:Extended      --era Run3      -n -1      --python_filename GEN_SIM_to_AOD_cfg.py      --no_exec
+
+Unfortunately, there is not a dedicated `--condition` for Run3 cosmics MC so far. The cmsDriver command above takes the conditions from data, so a couple of modifitions are needed to ensure that the generated information is stored in the AOD output.
+
+First, comment out the following line in `GEN_SIM_to_AOD_cfg.py`: `'drop *_genParticles_*_*',`.
+
+Second, add these lines in `RecoLocalMuonAOD` within `RecoLocalMuon/Configuration/python/RecoLocalMuonCosmics_EventContent_cff.py` as done in section "Including muon segments and hits in AOD"
+
+```
+'keep *_genParticles_*_*',
+'keep *_generator_*_*',
+'keep *_g4SimHits_Muon*_*',
+```
+
+By doing this, the generated particle kinematics, generator information, and the simulated muon hits will be stored in the AOD output.
+
+Compile from CMSSW_X_Y/src and run:
+
+     scram b -j 20
+     cmsRun GEN_SIM_to_AOD_cfg.py
+
+Now you can feed FireWorks with the output file, make the flat ntuples, etc, and check out things. 
+
+Note that some modifications will be needed to include the generated particles truth information in the flat ntuples. 
