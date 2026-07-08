@@ -150,6 +150,8 @@ process.VtxSmeared = cms.EDProducer("FlatEvtVtxGenerator",
     MaxY = cms.double(800.0),
     MinZ = cms.double(-600.0), # Longitudinal length: 12 meters 
     MaxZ = cms.double(600.0),
+    MinT = cms.double(0.0),
+    MaxT = cms.double(0.0),
     TimeOffset = cms.double(0.0),
     src = cms.InputTag("generator", "unsmeared")
 )
