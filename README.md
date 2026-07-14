@@ -150,6 +150,8 @@ process.VtxSmeared = cms.EDProducer("FlatEvtVtxGenerator",
     MaxY = cms.double(800.0),
     MinZ = cms.double(-600.0), # Longitudinal length: 12 meters 
     MaxZ = cms.double(600.0),
+    MinT = cms.double(0.0),
+    MaxT = cms.double(0.0),
     TimeOffset = cms.double(0.0),
     src = cms.InputTag("generator", "unsmeared")
 )
@@ -191,3 +193,26 @@ Compile from CMSSW_X_Y/src and run:
 Now one can feed FireWorks with the AOD output file, make the flat ntuples, etc. 
 
 Note that some modifications will be needed to include the generated particles truth information in the flat ntuples, i.e., read the `genParticles` collection, loop over the elements, store in new output branches the kinematic information from the muons. This is a good exercise for homework. In case it helps, I used to read that collection in the past for another project. The code logic behind is different as I was geometrically matching gen and reco muons, but some parts of the code can be taken as a benchmark: https://github.com/fmanteca/HighPt_DNN/tree/master/MyAnalysis/RECOAnalysis
+
+## Directory structure and select file descriptions (WIP)
+DataSegment_AOD/
+* CosmicPPreco_RAW2DIGI_RECO.py:
+     --> Locates specified Cosmic runs from eos/cms/store/data/... (which do not contain segment data) and generates AOD files including segment data.
+     --> Outputs "CosmicPPreco_RAW2DIGI_RECO.root"
+* crab_CosmicPPreco.py:
+     --> Submits job to crab in order to process many data files.
+
+Simulation/
+* MultiCosmicGun_GEN_SIM_cfg.py:
+     --> Simulates cosmic muons by "shooting" them towards the detector from above.
+     --> Outputs GEN-SIM_MultiCosmic.root
+* GEN_SIM_to_AOD_cfg.py
+     --> Takes simulated muons and generates "data-like" AOD files.
+     --> Outputs AODSIM.root
+
+Ntuplizer/
+* test/Cosmics_runNtuplizer_AOD_cfg.py
+     --> Produces Ntuples including segment info. If the data comes from simulated muons, the output will contain info regarding the muons(s) initially generated.
+     --> Outputs ntuples.root **(Final file ready for analysis)**
+* test/condor/
+* test/crab/
