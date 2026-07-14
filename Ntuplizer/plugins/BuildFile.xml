@@ -9,6 +9,9 @@
 <use name="TrackingTools/Records"/>
 <use name="MagneticField/Engine"/>
 <use name="MagneticField/Records"/>
+<use name="DataFormats/HepMCCandidate"/>
+<use name="DataFormats/Candidate"/>
+<use name="DataFormats/Common"/>
 <export>
   <lib name="1"/>
 </export>
