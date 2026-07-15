@@ -4,9 +4,9 @@ import subprocess
 # Define inputs and outputs
 datasets = [
     '/Cosmics/Commissioning2025-PromptReco-v1/AOD', 
-    '/Cosmics/Commissioning2025-PromptReco-v2/AOD'
+   # '/Cosmics/Commissioning2025-PromptReco-v2/AOD'
 ]
-output_base = '/eos/cms/store/group/phys_muon/fernanpe/Cosmics2025/'
+output_base = 'eos/user/a/aovergaa/SummerStudent_Project/CMSSW_15_0_5/src/CosmicMuons-FrameWork/Ntuplizer/test/condor'
 output_txt_file = 'files.txt'
 
 # Open the text file to write the results
