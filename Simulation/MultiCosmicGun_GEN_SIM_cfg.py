@@ -4,8 +4,61 @@
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
 # with command line options: MultiCosmicGun_cfi --fileout file:GEN-SIM_MultiCosmic.root --mc --eventcontent RAWSIM --datatier GEN-SIM --conditions auto:phase1_2025_cosmics --beamspot NoVertexSmear --scenario cosmics --step GEN,SIM --geometry DB:Extended --era Run3 -n 100 --python_filename MultiCosmicGun_GEN_SIM_cfg.py --no_exec
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.VarParsing as VarParsing #necessary for input options
+import sys
 
 from Configuration.Eras.Era_Run3_cff import Run3
+
+# Shower settings
+MaxZenithAngle = 1.047   # ~60 degrees 
+ShowerHalfWidth = 0.04
+
+# ----  Parser Configuration ---- #
+
+options = VarParsing.VarParsing('analysis')
+
+# define input and set no default values for nMuons
+options.register('nMuons',
+                 -1,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Number of muons generated per event")
+
+options.register('nEvents',
+                 1000,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Number of events to generate")
+
+options.register('output',
+                 'GEN-SIM_MultiCosmic.root',
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Output GEN-SIM file")
+
+options.parseArguments()
+
+nGenMuons = options.nMuons
+
+# force the user to provide non default argument via terminal
+if nGenMuons < 0:
+    print("\n[ERROR] Missing (valid) arguments. You MUST provide (positive values for) 'nMuons'. ")
+    print("Example: cmsRun MultiCosmicGun_GEN_SIM_cfg.py nMuons={int} ")
+    print("...")
+    print("...")
+    print("...")
+    sys.exit(1)
+
+# ensure local files are correctly referenced
+
+out_file = options.output.replace('file:', '')
+
+# ----  Print start message ---- #
+
+print(f"... Generating {options.nEvents} events with {options.nMuons} muons/event")
+print(f"... Writing output to: {out_file}")
+
+# ---- Configure process ---- #
 
 process = cms.Process('SIM',Run3)
 
@@ -25,12 +78,10 @@ process.load('Configuration.StandardSequences.SimNOBEAM_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-# Basic simulation settings
-nGenMuons = 5
-nEvents = 1000
 
+# Set events from input options
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(nEvents),
+    input = cms.untracked.int32(options.nEvents),
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
 
@@ -77,7 +128,6 @@ process.configurationMetadata = cms.untracked.PSet(
 )
 
 # Output definition
-
 process.RAWSIMoutput = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('generation_step')
@@ -87,7 +137,7 @@ process.RAWSIMoutput = cms.OutputModule("PoolOutputModule",
         filterName = cms.untracked.string('')
     ),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-    fileName = cms.untracked.string('file:GEN-SIM_MultiCosmic.root'),
+    fileName = cms.untracked.string(f'file:{out_file}'),
     outputCommands = process.RAWSIMEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )
@@ -101,14 +151,16 @@ process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2025_cosmics', '')
 
-process.generator = cms.EDProducer("FlatRandomPtGunProducer",
+process.generator = cms.EDProducer("MultiVtxFlatRandomPtGunProducer",
     AddAntiParticle = cms.bool(False),
     PGunParameters = cms.PSet(
-        MaxEta = cms.double(0.01),
+        MinEta = cms.double(-2.0),   # Dummy value for BaseFlatGunProducer, does not do anything
+        MaxEta = cms.double(2.0),    # Same as above
+        MaxZenithAngle = cms.double(MaxZenithAngle),
+        ShowerHalfWidth = cms.double(ShowerHalfWidth),
         MaxPhi = cms.double(-1.58),
-        MaxPt = cms.double(3000.0),
-        MinEta = cms.double(-0.01),
         MinPhi = cms.double(-1.56),
+        MaxPt = cms.double(3000.0),
         MinPt = cms.double(100.0),
         PartID = cms.vint32([13]*nGenMuons)
     ),
@@ -143,15 +195,17 @@ process = customiseEarlyDelete(process)
 # =========================================================
 # HACK: Move the origin of the muons to the top of the cavern
 # =========================================================
-process.VtxSmeared = cms.EDProducer("FlatEvtVtxGenerator",
-    MinX = cms.double(-500.0), # Transversal area: 10 meters 
+process.VtxSmeared = cms.EDProducer("MultiVtxFlatEvtVtxGenerator",
+    MinX = cms.double(-500.0), # Transversal area: 10 meters
     MaxX = cms.double(500.0),
     MinY = cms.double(800.0),  # Origin at 8 meter height (on top of the detector)
     MaxY = cms.double(800.0),
-    MinZ = cms.double(-600.0), # Longitudinal length: 12 meters 
+    # MinY = cms.double(13750.0),  # vertex high above detector to spread out muons. 137.50 meters should match a shower width of 5 degs.
+    # MaxY = cms.double(13750.0),
+    MinZ = cms.double(-600.0), # Longitudinal length: 12 meters
     MaxZ = cms.double(600.0),
     MinT = cms.double(0.0),
     MaxT = cms.double(0.0),
-    TimeOffset = cms.double(0.0),
+    # TimeOffset = cms.double(0.0), # TimeOffset is not read in MultiVtxFlatEvtGenerator, only original VtxFlatEvtGenerator
     src = cms.InputTag("generator", "unsmeared")
 )
